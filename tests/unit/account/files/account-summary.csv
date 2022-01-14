@@ -1,0 +1,22 @@
+HL SIPP, , , ,
+Client Name:,Mr Joe Bloggs, , ,
+Client Number:, 0000000, , ,
+Spreadsheet created at,01-01-2020 09:00, , ,
+
+Stock value:,"7,454.33", , ,
+Total cash:,"1,925.44", , ,
+Amount available to invest:,"1,900.44", , ,
+Total value:,"9,379.77", , ,
+
+Code,Stock,Units held,Price (pence),Value (�),Cost (�),Gain/loss (�),Gain/loss (%),
+"GOOGL","Alphabet Inc NPV A *R","5","2,226.73","111.34","75.50","35.84","47.47"
+"RMAP","HANetf Securities plc The Royal Mint Physical Gold ETC *1","40","1,319.75","527.90","627.80","-99.9","-15.92"
+"B71DPP6","Janus Henderson Global Sustainable Equity Class I - Accumulation (GBP)","1,450.02","470.00","6815.09","4632.02","2183.07","47.13"
+"","Totals","","","7,454.33","5,335.32","2,119.01","39.72"
+
+"Shares are valued at the bid-price, delayed by 15 minutes. Funds are valued at the most recent bid-price."
+"*1 The price shown is at the close of the last business day."
+
+"*2 This may not be the current price, but is the most recent we have available online. For further information, please view the factsheet or contact us.""*R This price has been converted to sterling at the rate shown below."
+"  - US and Canadian stocks: 1.37378USD to 100 pence. Exchange rate correct at 13/01/2022"
+"  - Euro denominated stocks: 1.19749EUR to 100 pence. Exchange rate correct at 13/01/2022"

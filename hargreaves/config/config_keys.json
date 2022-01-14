@@ -1,0 +1,18 @@
+{
+  "username": {
+      "env": "HL_USERNAME",
+      "config": "username"
+  },
+  "password": {
+      "env": "HL_PASSWORD",
+      "config": "password"
+  },
+  "date_of_birth": {
+      "env": "HL_DATE_OF_BIRTH",
+      "config": "date_of_birth"
+  },
+  "secure_number": {
+      "env": "HL_SECURE_NUMBER",
+      "config": "secure_number"
+  }
+}
