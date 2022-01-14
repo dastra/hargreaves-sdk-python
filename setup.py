@@ -18,8 +18,8 @@ setup(
     author="Dan Straw",
     url="https://github.com/dastra/hargreaves-sdk-python",
     license="MIT",
-    description="Unofficial Python SDK for the Hargreaves Lansdowne",
-    long_description="Unofficial Python-Client which uses the Hargreaves Lansdowne website as though it were am API.",
+    description="Unofficial Python SDK for the Hargreaves Lansdown",
+    long_description="Unofficial Python-Client which uses the Hargreaves Lansdown website as though it were an API.",
     test_suite="tests",
     packages=find_packages(exclude=("tests",)),
     python_requires=">=3.6",
@@ -37,7 +37,7 @@ setup(
     ],
     install_requires=[
         "requests",
-        "setuptools"
+        "setuptools",
         "beautifulsoup4"
     ],
 )
