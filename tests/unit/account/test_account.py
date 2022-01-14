@@ -21,9 +21,10 @@ def test_parse_account_list_failed():
 
 
 def test_parse_account_detail():
+    account_summary_html = Path(Path(__file__).parent / 'files/account-summary.html').read_text()
     account_summary_csv = Path(Path(__file__).parent / 'files/account-summary.csv').read_text()
     account_summary = AccountSummary(account_id=55, account_type="SIPP")
-    account_detail = parse_account_detail(account_summary_csv, account_summary)
+    account_detail = parse_account_detail(account_summary_html, account_summary_csv, account_summary)
 
     assert account_detail.account_id == account_summary.account_id
     assert account_detail.account_type == account_summary.account_type
@@ -36,6 +37,7 @@ def test_parse_account_detail():
     goog = account_detail.investments[0]
     assert goog.stock_symbol == 'GOOGL'
     assert goog.stock_name == 'Alphabet Inc NPV A *R'
+    assert goog.sedol_code == 'BYVY8G0'
     assert goog.units_held == 5
     assert goog.price_pence == 2226.73
     assert goog.value_gbp == 111.34

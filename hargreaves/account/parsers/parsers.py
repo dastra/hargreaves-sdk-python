@@ -27,7 +27,11 @@ def parse_account_list(my_accounts_html: str) -> [AccountSummary]:
     return accounts
 
 
-def parse_account_detail(account_detail_csv: str, account_summary: AccountSummary) -> AccountDetail:
+def parse_account_detail(account_detail_html: str, account_detail_csv: str, account_summary: AccountSummary) \
+        -> AccountDetail:
+
+    soup = BeautifulSoup(account_detail_html, 'html.parser')
+
     f = StringIO(account_detail_csv)
     reader = csv.reader(f, delimiter=',')
     try:
@@ -49,7 +53,19 @@ def parse_account_detail(account_detail_csv: str, account_summary: AccountSummar
                 elif in_holdings and row[0] == '' and row[1] == 'Totals':
                     in_holdings = False
                 elif in_holdings:
-                    investments.append(Investment(stock_symbol=row[0], stock_name=row[1],
+                    try:
+                        # Fetch the stock symbol and SEDOL code from the HTML
+                        # Could also be of the format live_price_value_$CODE-L
+                        live_price_value = soup.find(id=re.compile(f'^live_price_value_{row[0]}'))
+                        tr = live_price_value.parent.parent
+                        # https://online.hl.co.uk/my-accounts/security_deal/sedol/2588173
+                        href = tr.find("a", class_="deal-button")['href']
+                        sedol = re.findall('([^/]+$)', href)[0]
+                    except AttributeError as e:
+                        raise ValueError("Could not find the sedol code in the my-accounts page for stock symbol {} "
+                                         "with error {}".format(row[0], e))
+
+                    investments.append(Investment(stock_symbol=row[0], stock_name=row[1], sedol_code=sedol,
                         units_held=__to_float(row[2]), price_pence=__to_float(row[3]),
                         value_gbp=__to_float(row[4]), cost_gbp=__to_float(row[5]),
                         gain_loss_gbp=__to_float(row[6]), gain_loss_percentage=__to_float(row[7])))

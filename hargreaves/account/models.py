@@ -19,6 +19,7 @@ class AccountSummary:
 class Investment:
     __stock_symbol: str
     __stock_name: str
+    __sedol_code: str
     __units_held: float
     __price_pence: float
     __value_gbp: float
@@ -26,11 +27,12 @@ class Investment:
     __gain_loss_gbp: float
     __gain_loss_percentage: float
 
-    def __init__(self, stock_symbol: str, stock_name: str, units_held: float, price_pence: float, value_gbp: float,
-                 cost_gbp: float, gain_loss_gbp: float, gain_loss_percentage: float):
+    def __init__(self, stock_symbol: str, stock_name: str, sedol_code: str, units_held: float, price_pence: float,
+                 value_gbp: float, cost_gbp: float, gain_loss_gbp: float, gain_loss_percentage: float):
         """
         :param stock_symbol: str - the stock symbol.  i.e. GOOG
         :param stock_name: str - the name, i.e. "Alphabet Inc NPV A *R"
+        :param sedol_code: str - the SEDOL code of the stock, i.e. BYVY8G0
         :param units_held: float - the number of units held.  You can hold fractional units in funds, hence is a float
         :param price_pence: float - the current price in pence
         :param value_gbp: float - the total value of the holding, in pounds
@@ -40,6 +42,7 @@ class Investment:
         """
         self.__stock_symbol = stock_symbol
         self.__stock_name = stock_name
+        self.__sedol_code = sedol_code
         self.__units_held = units_held
         self.__price_pence = price_pence
         self.__value_gbp = value_gbp
@@ -54,6 +57,10 @@ class Investment:
     @property
     def stock_name(self):
         return self.__stock_name
+
+    @property
+    def sedol_code(self):
+        return self.__sedol_code
 
     @property
     def units_held(self):
