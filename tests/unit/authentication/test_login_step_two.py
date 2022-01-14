@@ -1,4 +1,6 @@
 import pytest
+import requests
+import requests_mock
 from pathlib import Path
 from hargreaves.authentication.login.step_two import *
 from hargreaves.config.models import ApiConfiguration
@@ -19,18 +21,19 @@ def test_parse_secure_numbers_failed():
         parse_secure_numbers('<html></html>')
 
 
-def test_post_secure_numbers(requests_mock):
+def test_post_secure_numbers():
     config = __get_config()
     session = requests.Session()
 
-    requests_mock.post(
-        'https://online.hl.co.uk/my-accounts/login-step-two',
-        json={"hl_vt": HL_VT, "online-password-verification": "password", "secure-number[1]": 5,
-              "secure-number[2]": 7, "secure-number[3]": 8},
-        status_code=http.HTTPStatus.FOUND
-    )
+    with requests_mock.Mocker() as m:
+        m.post(
+            'https://online.hl.co.uk/my-accounts/login-step-two',
+            json={"hl_vt": HL_VT, "online-password-verification": "password", "secure-number[1]": 5,
+                  "secure-number[2]": 7, "secure-number[3]": 8},
+            status_code=http.HTTPStatus.FOUND
+        )
 
-    post_secure_numbers(session, HL_VT, config, [1, 3, 4])
+        post_secure_numbers(session, HL_VT, config, [1, 3, 4])
 
 
 def __get_config():
