@@ -7,7 +7,7 @@ from io import StringIO
 from hargreaves.account.models import AccountSummary, AccountDetail, Investment
 
 
-def parse_account_list(my_accounts_html: str) -> list[AccountSummary]:
+def parse_account_list(my_accounts_html: str) -> [AccountSummary]:
     accounts = []
 
     soup = BeautifulSoup(my_accounts_html, 'html.parser')

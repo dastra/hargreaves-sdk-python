@@ -87,10 +87,10 @@ class AccountDetail:
     __total_cash: float
     __amount_available: float
     __total_value: float
-    __investments: list[Investment]
+    __investments: [Investment]
 
     def __init__(self, account_id: int, account_type: str, stock_value: float, total_cash: float,
-                 amount_available: float, total_value: float, investments: list[Investment]):
+                 amount_available: float, total_value: float, investments: [Investment]):
         """
         :param int account_id: The id of the account - i.e. 40
         :param str account_type: The type of the account - i.e. SIPP
@@ -98,7 +98,7 @@ class AccountDetail:
         :param float total_cash: Total cash held in account
         :param float amount_available: Amount available to invest
         :param float total_value: Total value of stock and cash
-        :param list[investments] investments: The list of current holdings
+        :param [investments] investments: The list of current holdings
         """
 
         self.__account_id = account_id

@@ -5,7 +5,7 @@ from hargreaves.account.parsers.parsers import parse_account_list, parse_account
 from hargreaves.utils.cookie_manager import set_cookies
 
 
-def list_accounts(session: requests.Session) -> [requests.Session, list[AccountSummary]]:
+def list_accounts(session: requests.Session) -> [requests.Session, [AccountSummary]]:
     session = set_cookies(session)
     my_accounts_html = session.get("https://online.hl.co.uk/my-accounts").text
 
