@@ -1,0 +1,20 @@
+search.handle_response({
+    "responseHeader": {
+        "status": 0,
+        "QTime": 0,
+        "params": {
+            "q": "GOOG",
+            "fl": "id,identifier,category,epic,stock_ticker,internet_allowed,score,w150_core,loaded,unit_type",
+            "start": "0",
+            "sort": "score desc, identifierSort asc",
+            "fq": ["{!tag=filter_shares}-(category:(C OR E OR H OR P OR N OR W) AND exchange_traded_fund:(N))", "{!tag=filter_shares_type}-(stype:(1 OR 2 OR 8) AND exchange_traded_fund:(N))", "{!tag=filter_overseas}-(category:(O) AND exchange_traded_fund:(N))", "{!tag=filter_overseas_type}-(stype:(6) AND exchange_traded_fund:(-N))", "{!tag=filter_funds}category:(-K OR -U)", "{!tag=filter_funds_type}stype:(-5)"],
+            "rows": "50",
+            "version": "2.2",
+            "facet": "on",
+            "wt": "json",
+            "bq": ["market_index:UKX^0.3", "market_index:MCX^0.2", "market_index:ASX^0.1"]
+        }
+    },
+    "response": {"numFound": 0, "start": 0, "maxScore": 0, "docs": [], "pid": "1642684207141"},
+    "facet_counts": {"facet_queries": {}, "facet_fields": {}, "facet_dates": {}, "facet_ranges": {}}
+})

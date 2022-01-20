@@ -1,0 +1,53 @@
+search.handle_response({
+  "responseHeader": {
+    "status": 0,
+    "QTime": 2,
+    "params": {
+      "q": "GOOG",
+      "fl": "id,identifier,category,epic,stock_ticker,internet_allowed,score,w150_core,loaded,unit_type",
+      "start": "0",
+      "sort": "score desc, identifierSort asc",
+      "rows": "50",
+      "version": "2.2",
+      "facet": "on",
+      "wt": "json",
+      "bq": [
+        "market_index:UKX^0.3",
+        "market_index:MCX^0.2",
+        "market_index:ASX^0.1"
+      ]
+    }
+  },
+  "response": {
+    "numFound": 2,
+    "start": 0,
+    "maxScore": 10.1490360000000006124309948063455522060394287109375,
+    "docs": [
+      {
+        "id": "BYY88Y7",
+        "identifier": "Alphabet Inc NPV C",
+        "internet_allowed": "Y",
+        "unit_type": "N",
+        "stock_ticker": "GOOG",
+        "category": "O",
+        "score": 10.1490360000000006124309948063455522060394287109375
+      },
+      {
+        "id": "BYVY8G0",
+        "identifier": "Alphabet Inc NPV A",
+        "internet_allowed": "Y",
+        "unit_type": "N",
+        "stock_ticker": "GOOGL",
+        "category": "O",
+        "score": 6.0944266000000002492242856533266603946685791015625
+      }
+    ],
+    "pid": "1642684207141"
+  },
+  "facet_counts": {
+    "facet_queries": {},
+    "facet_fields": {},
+    "facet_dates": {},
+    "facet_ranges": {}
+  }
+})
