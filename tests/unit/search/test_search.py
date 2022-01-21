@@ -3,8 +3,8 @@ from pathlib import Path
 import requests
 import requests_mock
 
-from search.clients import parse_search_results, investment_search
-from search.models import InvestmentTypes
+from hargreaves.search.clients import parse_search_results, investment_search
+from hargreaves.search.models import InvestmentTypes
 
 
 def test_send_search_request():
