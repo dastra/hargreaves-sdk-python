@@ -22,12 +22,11 @@ setup(
     long_description="Unofficial Python-Client which uses the Hargreaves Lansdown website as though it were an API.",
     test_suite="tests",
     packages=find_packages(exclude=("tests",)),
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
