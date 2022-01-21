@@ -2,7 +2,7 @@ import json
 import time
 import requests
 
-from search.models import InvestmentTypes, SearchResult
+from .models import InvestmentTypes, SearchResult
 
 
 def investment_search(session: requests.Session, search_string: str, investment_types: list) -> [SearchResult]:
