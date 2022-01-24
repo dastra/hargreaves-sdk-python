@@ -28,7 +28,7 @@ def parse_search_results(results_jsonp: str) -> [SearchResult]:
 
     srs = []
     for result in results['response']['docs']:
-        sr = SearchResult(stock_ticker=result['stock_ticker'], stock_name=result['identifier'], sedol_code=result['id'],
+        sr = SearchResult(stock_ticker=result['stock_ticker'], security_name=result['identifier'], sedol_code=result['id'],
                           internet_allowed=result['internet_allowed'] == 'Y', category=result['category'])
         srs.append(sr)
 

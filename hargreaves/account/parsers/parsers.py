@@ -65,7 +65,7 @@ def parse_account_detail(account_detail_html: str, account_detail_csv: str, acco
                         raise ValueError("Could not find the sedol code in the my-accounts page for stock symbol {} "
                                          "with error {}".format(row[0], e))
 
-                    investments.append(Investment(stock_ticker=row[0], stock_name=row[1], sedol_code=sedol,
+                    investments.append(Investment(stock_ticker=row[0], security_name=row[1], sedol_code=sedol,
                         units_held=__to_float(row[2]), price_pence=__to_float(row[3]),
                         value_gbp=__to_float(row[4]), cost_gbp=__to_float(row[5]),
                         gain_loss_gbp=__to_float(row[6]), gain_loss_percentage=__to_float(row[7])))
