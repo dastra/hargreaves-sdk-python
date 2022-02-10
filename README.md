@@ -75,7 +75,7 @@ if __name__ == '__main__':
         account_detail = get_account_detail(session, account_summary)
         print(f'Your {account_detail.account_type} is worth {account_detail.total_value} with the following holdings:')
         for investment in account_detail.investments:
-            print(f'\tYou hold {investment.units_held} units of {investment.stock_name} worth {investment.value_gbp}')
+            print(f'\tYou hold {investment.units_held} units of {investment.security_name} worth {investment.value_gbp}')
 
     # If you're running this in a long running server environment,
     # make sure to log out to avoid session expiration errors
