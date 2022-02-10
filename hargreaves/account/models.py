@@ -1,3 +1,13 @@
+class AccountType:
+
+    SIPP = 'SIPP'
+    ISA = 'Stocks & Shares ISA'
+    JUNIOR_ISA = 'Junior ISA'
+    SHARE_ACCOUNT = 'Fund & Share Account'
+
+    ALL = (SIPP, ISA, JUNIOR_ISA, SHARE_ACCOUNT)
+
+
 class AccountSummary:
     def __init__(self, account_id: int, account_type: str):
         """

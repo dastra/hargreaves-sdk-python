@@ -16,6 +16,8 @@ pip3 install hargreaves
 
 ## Usage 
 
+There are examples of use in doc/examples/
+
 ### Secrets
 
 You will need to pass your authentication credentials to the code, either in a file or via environment variables.
@@ -29,7 +31,7 @@ The format is:
 {
   "username": "tuser",
   "password": "tpass",
-  "date_of_birth": "010120", // Format DDMMYY
+  "date_of_birth": "011286", // Format DDMMYY
   "secure_number": "123456"
 }
 ```
@@ -47,7 +49,7 @@ As an alternative to storing your secrets in a file, you can set them as environ
 ```shell
 export HL_USERNAME = "tuser2"
 export HL_PASSWORD = "tpass2"
-export HL_DATE_OF_BIRTH = "010130"
+export HL_DATE_OF_BIRTH = "011285" # Format DDMMYY
 export HL_SECURE_NUMBER = "654321"
 ```
 
