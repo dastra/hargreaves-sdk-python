@@ -1,5 +1,8 @@
 doc/examples/secrets.json
 
+## macOS files
+.DS_Store
+
 ### Python gitignore
 # From https://github.com/github/gitignore/blob/main/Python.gitignore
 
