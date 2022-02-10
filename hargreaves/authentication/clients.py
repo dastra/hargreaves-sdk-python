@@ -4,7 +4,7 @@ from hargreaves.authentication.login.step_two import *
 from hargreaves.config.models import ApiConfiguration
 
 
-def login(config: ApiConfiguration):
+def login(config: ApiConfiguration) -> requests.Session:
     session = requests.Session()
 
     session, hl_vt = get_security_token(session)

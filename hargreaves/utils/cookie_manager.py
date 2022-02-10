@@ -7,3 +7,4 @@ def set_cookies(session: requests.Session):
         cookies.create_cookie(domain=".hl.co.uk", name="jsCheck", value="yes", path='/'))
 
     return session
+

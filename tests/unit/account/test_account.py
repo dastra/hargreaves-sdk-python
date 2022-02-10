@@ -36,7 +36,7 @@ def test_parse_account_detail():
     assert len(account_detail.investments) == 3
     goog = account_detail.investments[0]
     assert goog.stock_ticker == 'GOOGL'
-    assert goog.stock_name == 'Alphabet Inc NPV A *R'
+    assert goog.security_name == 'Alphabet Inc NPV A *R'
     assert goog.sedol_code == 'BYVY8G0'
     assert goog.units_held == 5
     assert goog.price_pence == 2226.73

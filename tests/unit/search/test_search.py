@@ -36,7 +36,7 @@ def test_parse_search_results_found():
     goog = search_results[0]
 
     assert goog.stock_ticker == 'GOOG'
-    assert goog.stock_name == 'Alphabet Inc NPV C'
+    assert goog.security_name == 'Alphabet Inc NPV C'
     assert goog.sedol_code == 'BYY88Y7'
     assert goog.internet_allowed
     assert goog.category == 'O'

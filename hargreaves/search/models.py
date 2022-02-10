@@ -4,7 +4,7 @@ class InvestmentTypes:
     FUNDS = 'funds'             # Funds
     ETFS = 'etfs'               # ETFs
 
-    ALL = [OVERSEAS, FUNDS, ETFS, SHARES]
+    ALL = (OVERSEAS, FUNDS, ETFS, SHARES)
 
 
 class SearchResult:
