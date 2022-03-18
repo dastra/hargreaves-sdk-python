@@ -1,25 +1,37 @@
-import requests
+from logging import Logger
+from typing import List
 
 from hargreaves.account.models import AccountSummary, AccountDetail
 from hargreaves.account.parsers.parsers import parse_account_list, parse_account_detail
-from hargreaves.utils.cookie_manager import set_cookies
+from hargreaves.web.session import IWebSession
 
 
-def list_accounts(session: requests.Session) -> [requests.Session, [AccountSummary]]:
-    session = set_cookies(session)
-    my_accounts_html = session.get("https://online.hl.co.uk/my-accounts").text
+class AccountClient:
+    __logger: Logger
+    __web_session: IWebSession
 
-    return session, parse_account_list(my_accounts_html)
+    def __init__(self,
+                 logger: Logger,
+                 web_session: IWebSession
+                 ):
+        self.__logger = logger
+        self.__web_session = web_session
 
+    def get_account_summary(self) -> List[AccountSummary]:
+        response = self.__web_session.get('https://online.hl.co.uk/my-accounts')
+        return parse_account_list(response.text)
 
-def get_account_detail(session: requests.Session, account_summary: AccountSummary) -> AccountDetail:
-    session = set_cookies(session)
-    # Fetching the account detail page
-    account_detail_html = session.get("https://online.hl.co.uk/my-accounts/account_summary/account/" \
-                                      + str(account_summary.account_id)).text
+    def get_account_detail(self, account_summary: AccountSummary) -> AccountDetail:
+        account_id = account_summary.account_id
+        self.__logger.debug(f"Fetching the account detail page for account '{account_id}' ...")
+        account_detail_html = self.__web_session.get(
+            f"https://online.hl.co.uk/my-accounts/account_summary/account/{account_summary.account_id}").text
 
-    # Fetching the account detail CSV
-    account_detail_csv = session.get(
-        'https://online.hl.co.uk/my-accounts/account_summary_csv/sort/stock/sortdir/asc').text
+        self.__logger.debug(f"Fetching the account detail CSV for account '{account_id}' ...")
+        csv_response = self.__web_session.get(
+            'https://online.hl.co.uk/my-accounts/account_summary_csv/sort/stock/sortdir/asc')
 
-    return parse_account_detail(account_detail_html, account_detail_csv, account_summary)
+        csv_response.encoding = 'utf-8'  # avoids the 'DEBUG:chardet.charsetprobe' messages from csv reader
+        account_detail_csv = csv_response.text
+
+        return parse_account_detail(account_detail_html, account_detail_csv, account_summary)

@@ -1,20 +1,18 @@
 import http
 import re
 
-import requests
 from bs4 import BeautifulSoup
 
 from hargreaves.config.models import ApiConfiguration
-from hargreaves.utils.cookie_manager import set_cookies
+from hargreaves.web.session import IWebSession
 
 
-def get_secure_number_request(session: requests.Session):
-    session = set_cookies(session)
-    stage_two_html = session.get("https://online.hl.co.uk/my-accounts/login-step-two").text
+def get_secure_number_request(web_session: IWebSession):
+    stage_two_html = web_session.get("https://online.hl.co.uk/my-accounts/login-step-two").text
 
     secure_numbers_requested = parse_secure_numbers(stage_two_html)
 
-    return session, secure_numbers_requested
+    return secure_numbers_requested
 
 
 def parse_secure_numbers(stage_two_html: str) -> list:
@@ -34,19 +32,21 @@ def parse_secure_numbers(stage_two_html: str) -> list:
     return secure_numbers
 
 
-def post_secure_numbers(session: requests.Session, hl_vt: str, config: ApiConfiguration,
+def post_secure_numbers(web_session: IWebSession,
+                        hl_vt: str,
+                        config: ApiConfiguration,
                         secure_numbers_requested: list):
-    session = set_cookies(session)
     body = {
         'hl_vt': hl_vt,
         'online-password-verification': config.password,
         'secure-number[1]': config.secure_number[secure_numbers_requested[0] - 1],
         'secure-number[2]': config.secure_number[secure_numbers_requested[1] - 1],
         'secure-number[3]': config.secure_number[secure_numbers_requested[2] - 1],
+        'submit': ' Log in   '
     }
-    res = session.post('https://online.hl.co.uk/my-accounts/login-step-two', data=body, allow_redirects=False)
-    if res.status_code != http.HTTPStatus.FOUND:
+    res = web_session.post('https://online.hl.co.uk/my-accounts/login-step-two', data=body)
+    if res.status_code != http.HTTPStatus.OK:
         raise ConnectionError(f"Secure Number step response code was {res.status_code}")
     elif "try again" in res.text:
         raise ValueError("An error occurred with posting password and secure number. Check these before continuing")
-    return session
+    return res

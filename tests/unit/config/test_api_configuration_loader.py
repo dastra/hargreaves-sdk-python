@@ -3,11 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from hargreaves.config import *
+from hargreaves.config.loader import ConfigLoader
+from hargreaves.utils.logging import LoggerFactory
 
 
 def test_load_config_ok():
-    config = load_api_config(str(Path(__file__).parent) + "/files/valid.json")
+    loader = ConfigLoader(LoggerFactory.create_std_out())
+    config = loader.load_api_config(str(Path(__file__).parent) + "/files/valid.json")
 
     assert config.username == 'tuser'
     assert config.password == 'tpass'
@@ -16,18 +18,21 @@ def test_load_config_ok():
 
 
 def test_load_config_file_not_found():
+    loader = ConfigLoader(LoggerFactory.create_std_out())
     with pytest.raises(ValueError, match=r"Provided secrets file of"):
-        load_api_config(str(Path(__file__).parent) + "/not_found.json")
+        loader.load_api_config(str(Path(__file__).parent) + "/not_found.json")
 
 
 def test_load_config_missing():
+    loader = ConfigLoader(LoggerFactory.create_std_out())
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
-        load_api_config(str(Path(__file__).parent) + "/files/invalid.json")
+        loader.load_api_config(str(Path(__file__).parent) + "/files/invalid.json")
 
 
 def test_load_config_bad_structure():
+    loader = ConfigLoader(LoggerFactory.create_std_out())
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
-        load_api_config(str(Path(__file__).parent) + "/files/bad_structure.json")
+        loader.load_api_config(str(Path(__file__).parent) + "/files/bad_structure.json")
 
 
 def test_environment_variables_ok():
@@ -38,7 +43,8 @@ def test_environment_variables_ok():
     os.environ["HL_DATE_OF_BIRTH"] = "010130"
     os.environ["HL_SECURE_NUMBER"] = "654321"
 
-    config = load_api_config()
+    loader = ConfigLoader(LoggerFactory.create_std_out())
+    config = loader.load_api_config()
 
     os.environ.clear()
     os.environ.update(old_environ)
@@ -50,5 +56,6 @@ def test_environment_variables_ok():
 
 
 def test_environment_variables_missing():
+    loader = ConfigLoader(LoggerFactory.create_std_out())
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
-        load_api_config()
+        loader.load_api_config()

@@ -1,24 +1,53 @@
 import json
-import time
-import requests
+from logging import Logger
 
+from hargreaves.web.session import IWebSession, WebRequestType
 from .models import InvestmentTypes, SearchResult
+from ..utils.timings import ITimeService
 
 
-def investment_search(session: requests.Session, search_string: str, investment_types: list) -> [SearchResult]:
-    # pid is the time in milliseconds since the epoch
-    pid = time.time_ns()
-    # the filters param is actually a list of investment types to be excluded, so we need to reverse what was passed in.
-    type_excl = []
-    for inv_type in InvestmentTypes.ALL:
-        if inv_type not in investment_types:
-            type_excl.append(inv_type)
+class SecuritySearchClient:
+    __logger: Logger
+    __web_session: IWebSession
+    __time_service: ITimeService
 
-    results_jsonp = session.get(
-        f'https://online.hl.co.uk/ajaxx/stocks.php?pid={pid}&sq={search_string}&filters={",".join(type_excl)}&offset'
-        f'=0&instance=&format=jsonp').text
+    def __init__(self,
+                 logger: Logger,
+                 web_session: IWebSession,
+                 time_service: ITimeService
+                 ):
+        self.__logger = logger
+        self.__web_session = web_session
+        self.__time_service = time_service
 
-    return parse_search_results(results_jsonp)
+    def investment_search(self, search_string: str, investment_types: list) -> [SearchResult]:
+        # pid is the time in milliseconds since the epoch
+        pid = self.__time_service.get_current_time_as_epoch_time()
+        # the filters param is actually a list of investment types to be excluded,
+        # so we need to reverse what was passed in.
+        type_excl = []
+        for inv_type in InvestmentTypes.ALL:
+            if inv_type not in investment_types:
+                type_excl.append(inv_type)
+
+        headers = {
+            'Referer': 'https://online.hl.co.uk/my-accounts/stock_and_fund_search/action/deal'
+        }
+
+        results_jsonp = self.__web_session.get(
+            url=f'https://online.hl.co.uk/ajaxx/stocks.php',
+            request_type=WebRequestType.XHR,
+            params={
+                'pid': pid,
+                'sq': search_string,
+                'filters': ",".join(type_excl),
+                'offset': 0,
+                'instance': '',
+                'format': 'jsonp'
+            },
+            headers=headers).text
+
+        return parse_search_results(results_jsonp)
 
 
 def parse_search_results(results_jsonp: str) -> [SearchResult]:
@@ -28,7 +57,10 @@ def parse_search_results(results_jsonp: str) -> [SearchResult]:
 
     srs = []
     for result in results['response']['docs']:
-        sr = SearchResult(stock_ticker=result['stock_ticker'], security_name=result['identifier'], sedol_code=result['id'],
+        stock_ticker = result['stock_ticker'] if 'stock_ticker' in result else result['epic']
+
+        sr = SearchResult(stock_ticker=stock_ticker, security_name=result['identifier'],
+                          sedol_code=result['id'],
                           internet_allowed=result['internet_allowed'] == 'Y', category=result['category'])
         srs.append(sr)
 

@@ -1,8 +1,10 @@
-import pytest
-import requests_mock
 from pathlib import Path
+
+import pytest
+
 from hargreaves.authentication.login.step_one import *
 from hargreaves.config.models import ApiConfiguration
+from hargreaves.web.mocks import MockWebSession
 
 HL_VT = '1670432745'
 
@@ -22,16 +24,15 @@ def test_parse_security_token_failed():
 
 def test_post_username_dob():
     config = __get_config()
-    session = requests.Session()
 
-    with requests_mock.Mocker() as mock_request:
-        mock_request.post(
-            'https://online.hl.co.uk/my-accounts/login-step-one',
-            json={"hl_vt": HL_VT, "username": "test", "date-of-birth": "010204"},
-            status_code=http.HTTPStatus.FOUND
-        )
+    with MockWebSession() as web_session:
+        web_session.mock_post(
+                url='https://online.hl.co.uk/my-accounts/login-step-one',
+                data={"hl_vt": HL_VT, "username": "test", "date-of-birth": "010204"},
+                status_code=http.HTTPStatus.OK
+            )
 
-        post_username_dob(session, HL_VT, config)
+        post_username_dob(web_session, HL_VT, config)
 
 
 def __get_config():

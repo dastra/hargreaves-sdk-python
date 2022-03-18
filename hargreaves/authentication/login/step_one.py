@@ -1,17 +1,16 @@
 import http
 
-import requests
 from bs4 import BeautifulSoup
+from requests import Response
 
 from hargreaves.config.models import ApiConfiguration
-from hargreaves.utils.cookie_manager import set_cookies
+from hargreaves.web.session import IWebSession
 
 
-def get_security_token(session: requests.Session):
-    session = set_cookies(session)
-    stage_one_html = session.get("https://online.hl.co.uk/my-accounts/login-step-one").text
+def get_security_token(web_session: IWebSession):
+    stage_one_html = web_session.get("https://online.hl.co.uk/my-accounts/login-step-one").text
     hl_vt = parse_security_token(stage_one_html)
-    return session, hl_vt
+    return hl_vt
 
 
 def parse_security_token(stage_one_html: str) -> str:
@@ -26,12 +25,11 @@ def parse_security_token(stage_one_html: str) -> str:
     return hl_vt
 
 
-def post_username_dob(session: requests.Session, hl_vt: str, config: ApiConfiguration):
-    session = set_cookies(session)
+def post_username_dob(web_session: IWebSession, hl_vt: str, config: ApiConfiguration) -> Response:
     body = {'hl_vt': hl_vt, 'username': config.username, 'date-of-birth': config.date_of_birth}
-    res = session.post('https://online.hl.co.uk/my-accounts/login-step-one', data=body, allow_redirects=False)
-    if res.status_code != http.HTTPStatus.FOUND:
+    res = web_session.post('https://online.hl.co.uk/my-accounts/login-step-one', data=body)
+    if res.status_code != http.HTTPStatus.OK:
         raise ConnectionError(f"Username/DOB step response code was {res.status_code}")
     elif "try again" in res.text:
         raise ValueError("An error occurred with posting Username & DoB. Check these before continuing")
-    return session
+    return res

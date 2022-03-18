@@ -7,6 +7,12 @@ class InvestmentTypes:
     ALL = (OVERSEAS, FUNDS, ETFS, SHARES)
 
 
+class InvestmentCategoryTypes:
+    OVERSEAS = 'O'
+    EQUITIES = 'E'
+    TRUSTS = 'H'  # not sure about this one, saw it one "ASCI", seems to use normal "equity" page
+
+
 class SearchResult:
     __stock_ticker: str
     __security_name: str
@@ -48,3 +54,7 @@ class SearchResult:
     @property
     def category(self):
         return self.__category
+
+    def __str__(self):
+        return f"""SearchResult[stock_ticker={self.__stock_ticker}, security_name={self.__security_name},
+        sedol_code={self.__sedol_code}, internet_allowed={self.__internet_allowed}, category={self.__category}]"""

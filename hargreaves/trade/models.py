@@ -17,11 +17,13 @@ class Deal:
     _bid_price: str
     _units_held: float
     _value_gbp: float
+    _category_code: str
 
     def __init__(self, hl_vt: str, stock_ticker: str, security_name: str, sedol_code: str, isin_code: str,
                  epic_code: str,
                  currency_code: str, exchange: str, fixed_interest: bool, account_id: int, total_cash_available: float,
-                 bid_price: str, units_held: float, value_gbp: float
+                 bid_price: str, units_held: float, value_gbp: float,
+                 category_code: str
                  ):
         """
         :param hl_vt: str The security code
@@ -55,6 +57,7 @@ class Deal:
         self._bid_price = bid_price
         self._units_held = units_held
         self._value_gbp = value_gbp
+        self._category_code = category_code
 
     SHARE_QUANTITY = 'quantity'
     SHARE_VALUE = 'value'
@@ -64,17 +67,17 @@ class Deal:
             'hl_vt': self.hl_vt,
             'sedol': self.sedol_code,
             'security_name': self.security_name,
-            'product_no': self.account_id,
-            'available': self.total_cash_available,
-            'bid': self.bid_price,
-            'holding': self.units_held,
-            'holding_value': self.value_gbp,
-            'isin': self.isin_code,
-            'epic': self.epic_code,
-            'currency_code': self.currency_code,
-            'exchange': self.exchange,
-            'fixed_interest': self.fixed_interest,
-            'ticker': self.stock_ticker,
+            'product_no': str(self.account_id),
+            'available': str(self.total_cash_available),
+            'bid': str(self.bid_price),
+            'holding': str(self.units_held),
+            'holding_value': str(self.value_gbp),
+            'isin': str(self.isin_code),
+            'epic': str(self.epic_code),
+            'currency_code': str(self.currency_code),
+            'exchange': str(self.exchange),
+            'fixed_interest': str(int(self.fixed_interest)),
+            'ticker': str(self.stock_ticker)
         }
 
     @property
@@ -133,6 +136,10 @@ class Deal:
     def fixed_interest(self):
         return self._fixed_interest
 
+    @property
+    def category_code(self):
+        return self._category_code
+
 
 class Buy(Deal):
     _quantity: float
@@ -140,7 +147,7 @@ class Buy(Deal):
     _including_charges: bool
 
     # noinspection PyMissingConstructor
-    def __init__(self, deal_info: Deal, quantity: float, shares_or_value: str, including_charges: bool):
+    def __init__(self, deal_info: Deal, quantity: float, shares_or_value: str, including_charges: bool = False):
         self.__dict__ = deal_info.__dict__.copy()
         self._quantity = quantity
         self._shares_or_value = shares_or_value
@@ -148,14 +155,16 @@ class Buy(Deal):
 
     def as_form_fields(self) -> dict:
         di_fields = super().as_form_fields()
+
         buy_fields = {
-            'remaining_holding': self.remaining_units_held,
-            'remaining_holding_value': self.remaining_value_pence,
+            'remaining_holding': str(self.remaining_units_held),
+            'remaining_holding_value': str(self.remaining_value_pence),
             'bs': self.buy_or_sell,
-            'quantity': self.quantity,
-            'qs': self.shares_or_value,
-            'inc_chrgs': '1' if self.including_charges else '0'
+            'quantity': str(self.quantity),
+            'qs': self.shares_or_value
         }
+        if self.shares_or_value == Deal.SHARE_VALUE:
+            buy_fields['inc_chrgs'] = '1' if self.including_charges else '0'
 
         return {**di_fields, **buy_fields}
 
@@ -248,10 +257,20 @@ class Price:
     _stamp_duty: float
     _settlement_date: datetime.date
     _total_trade_value: float
+    _exchange_rate: float
+    _conversion_price: float
+    _conversion_sub_total: float
+    _fx_charge: float
+    category_code: str
 
     def __init__(self, sedol_code: str, number_of_shares: float, price: str, share_value: float,
                  ptm_levy: float, commission: float, stamp_duty: float, settlement_date: datetime.date,
-                 total_trade_value: float
+                 total_trade_value: float,
+                 exchange_rate: float,
+                 conversion_price: float,
+                 conversion_sub_total: float,
+                 fx_charge: float,
+                 category_code: str
                  ):
         """
         :param sedol_code: str B6QH1J2
@@ -275,6 +294,11 @@ class Price:
         self._stamp_duty = stamp_duty
         self._settlement_date = settlement_date
         self._total_trade_value = total_trade_value
+        self._exchange_rate = exchange_rate
+        self._conversion_price = conversion_price
+        self._conversion_sub_total = conversion_sub_total
+        self._fx_charge = fx_charge
+        self._category_code = category_code
 
     @property
     def sedol_code(self):
@@ -312,6 +336,26 @@ class Price:
     def total_trade_value(self):
         return self._total_trade_value
 
+    @property
+    def exchange_rate(self):
+        return self._exchange_rate
+
+    @property
+    def conversion_price(self):
+        return self._conversion_price
+
+    @property
+    def conversion_sub_total(self):
+        return self._conversion_sub_total
+
+    @property
+    def fx_charge(self):
+        return self._fx_charge
+
+    @property
+    def category_code(self):
+        return self._category_code
+
 
 class PriceQuote(Price):
     _session_hl_vt: str
@@ -320,7 +364,12 @@ class PriceQuote(Price):
     def __init__(self, session_hl_vt: str, hl_vt: str, sedol_code: str, number_of_shares: float, price: str,
                  share_value: float,
                  ptm_levy: float, commission: float, stamp_duty: float, settlement_date: datetime.date,
-                 total_trade_value: float
+                 total_trade_value: float,
+                 exchange_rate: float,
+                 conversion_price: float,
+                 conversion_sub_total: float,
+                 fx_charge: float,
+                 category_code: str
                  ):
         """
         :param session_hl_vt: str The security code to be used for session keepalive
@@ -328,7 +377,11 @@ class PriceQuote(Price):
         """
         Price.__init__(self, sedol_code=sedol_code, number_of_shares=number_of_shares, price=price,
                        share_value=share_value, ptm_levy=ptm_levy, commission=commission, stamp_duty=stamp_duty,
-                       settlement_date=settlement_date, total_trade_value=total_trade_value)
+                       settlement_date=settlement_date, total_trade_value=total_trade_value,
+                       exchange_rate=exchange_rate, conversion_price=conversion_price,
+                       conversion_sub_total=conversion_sub_total, fx_charge=fx_charge,
+                       category_code=category_code
+                       )
 
         self._session_hl_vt = session_hl_vt
         self._hl_vt = hl_vt
@@ -341,13 +394,56 @@ class PriceQuote(Price):
     def hl_vt(self):
         return self._hl_vt
 
+    def __str__(self):
+        return f"""PriceQuote[
+            sedol_code={self.sedol_code},
+            number_of_shares={self.number_of_shares},
+            price={self.price},
+            share_value={self.share_value},
+            ptm_levy={self.ptm_levy},
+            commission={self.commission}, 
+            stamp_duty={self.stamp_duty},
+            settlement_date={self.settlement_date},
+            total_trade_value={self.total_trade_value},
+            exchange_rate={self.exchange_rate},
+            conversion_price={self.conversion_price},
+            conversion_sub_total={self.conversion_sub_total},
+            fx_charge={self.fx_charge},
+            category_code={self.category_code},
+            session_hl_vt={self.session_hl_vt},
+            hl_vt={self.hl_vt}
+        ]"""
+
 
 class DealConfirmation(Price):
 
     def __init__(self, sedol_code: str, number_of_shares: float, price: str, share_value: float,
                  ptm_levy: float, commission: float, stamp_duty: float, settlement_date: datetime.date,
-                 total_trade_value: float
+                 total_trade_value: float, exchange_rate: float, conversion_price: float,
+                 conversion_sub_total: float, fx_charge: float, category_code: str
                  ):
         Price.__init__(self, sedol_code=sedol_code, number_of_shares=number_of_shares, price=price,
                        share_value=share_value, ptm_levy=ptm_levy, commission=commission, stamp_duty=stamp_duty,
-                       settlement_date=settlement_date, total_trade_value=total_trade_value)
+                       settlement_date=settlement_date, total_trade_value=total_trade_value,
+                       exchange_rate=exchange_rate, conversion_price=conversion_price,
+                       conversion_sub_total=conversion_sub_total, fx_charge=fx_charge,
+                       category_code=category_code
+                       )
+
+    def __str__(self):
+        return f"""DealConfirmation[
+            sedol_code={self.sedol_code},
+            number_of_shares={self.number_of_shares},
+            price={self.price},
+            share_value={self.share_value},
+            ptm_levy={self.ptm_levy},
+            commission={self.commission}, 
+            stamp_duty={self.stamp_duty},
+            settlement_date={self.settlement_date},
+            total_trade_value={self.total_trade_value},
+            exchange_rate={self.exchange_rate},
+            conversion_price={self.conversion_price},
+            conversion_sub_total={self.conversion_sub_total},
+            fx_charge={self.fx_charge},
+            category_code={self.category_code}
+        ]"""

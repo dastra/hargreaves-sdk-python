@@ -25,6 +25,9 @@ class AccountSummary:
     def account_type(self):
         return self.__account_type
 
+    def __str__(self):
+        return f"""AccountSummary[account_id={self.__account_id}, account_type={self.__account_type}]"""
+
 
 class Investment:
     __stock_ticker: str
