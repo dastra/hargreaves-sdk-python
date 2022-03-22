@@ -1,8 +1,9 @@
 import datetime
 import re
+from typing import Optional
 
 
-class Deal:
+class MarketOrder:
     _hl_vt: str
     _stock_ticker: str
     _security_name: str
@@ -141,14 +142,14 @@ class Deal:
         return self._category_code
 
 
-class Buy(Deal):
+class MarketBuyOrder(MarketOrder):
     _quantity: float
     _shares_or_value: str
     _including_charges: bool
 
     # noinspection PyMissingConstructor
-    def __init__(self, deal_info: Deal, quantity: float, shares_or_value: str, including_charges: bool = False):
-        self.__dict__ = deal_info.__dict__.copy()
+    def __init__(self, order_info: MarketOrder, quantity: float, shares_or_value: str, including_charges: bool = False):
+        self.__dict__ = order_info.__dict__.copy()
         self._quantity = quantity
         self._shares_or_value = shares_or_value
         self._including_charges = including_charges
@@ -163,7 +164,7 @@ class Buy(Deal):
             'quantity': str(self.quantity),
             'qs': self.shares_or_value
         }
-        if self.shares_or_value == Deal.SHARE_VALUE:
+        if self.shares_or_value == MarketOrder.SHARE_VALUE:
             buy_fields['inc_chrgs'] = '1' if self.including_charges else '0'
 
         return {**di_fields, **buy_fields}
@@ -193,7 +194,7 @@ class Buy(Deal):
         return self._including_charges
 
 
-class Sell(Deal):
+class MarketSellOrder(MarketOrder):
     _quantity: float
     _shares_or_value: str
 
@@ -208,17 +209,17 @@ class Sell(Deal):
         :param shares_or_value: str value         - Either value (for £100 GBP of shares) or quantity (for 100 shares)
         """
 
-        Deal.__init__(self, hl_vt=hl_vt, stock_ticker=stock_ticker, security_name=security_name,
-                      sedol_code=sedol_code, isin_code=isin_code, epic_code=epic_code, currency_code=currency_code,
-                      exchange=exchange, fixed_interest=fixed_interest, account_id=account_id,
-                      total_cash_available=total_cash_available, bid_price=bid_price, units_held=units_held,
-                      value_gbp=value_gbp)
+        MarketOrder.__init__(self, hl_vt=hl_vt, stock_ticker=stock_ticker, security_name=security_name,
+                             sedol_code=sedol_code, isin_code=isin_code, epic_code=epic_code, currency_code=currency_code,
+                             exchange=exchange, fixed_interest=fixed_interest, account_id=account_id,
+                             total_cash_available=total_cash_available, bid_price=bid_price, units_held=units_held,
+                             value_gbp=value_gbp)
 
         self._quantity = quantity
         self._shares_or_value = shares_or_value
 
-    def __init__(self, deal_info: Deal, quantity: float, shares_or_value: str):
-        self.__dict__ = deal_info.__dict__.copy()
+    def __init__(self, order_info: MarketOrder, quantity: float, shares_or_value: str):
+        self.__dict__ = order_info.__dict__.copy()
         self._quantity = quantity
         self._shares_or_value = shares_or_value
 
@@ -357,18 +358,26 @@ class Price:
         return self._category_code
 
 
-class PriceQuote(Price):
+class MarketOrderQuote(Price):
     _session_hl_vt: str
     _hl_vt: str
 
-    def __init__(self, session_hl_vt: str, hl_vt: str, sedol_code: str, number_of_shares: float, price: str,
+    def __init__(self,
+                 session_hl_vt: str,
+                 hl_vt: str,
+                 sedol_code: str,
+                 number_of_shares: float,
+                 price: str,
                  share_value: float,
-                 ptm_levy: float, commission: float, stamp_duty: float, settlement_date: datetime.date,
+                 ptm_levy: float,
+                 commission: float,
+                 stamp_duty: float,
+                 settlement_date: datetime.date,
                  total_trade_value: float,
-                 exchange_rate: float,
-                 conversion_price: float,
-                 conversion_sub_total: float,
-                 fx_charge: float,
+                 exchange_rate: Optional[float],
+                 conversion_price: Optional[float],
+                 conversion_sub_total: Optional[float],
+                 fx_charge: Optional[float],
                  category_code: str
                  ):
         """
@@ -395,7 +404,7 @@ class PriceQuote(Price):
         return self._hl_vt
 
     def __str__(self):
-        return f"""PriceQuote[
+        return f"""MarketOrderQuote[
             sedol_code={self.sedol_code},
             number_of_shares={self.number_of_shares},
             price={self.price},
@@ -415,7 +424,7 @@ class PriceQuote(Price):
         ]"""
 
 
-class DealConfirmation(Price):
+class MarketOrderConfirmation(Price):
 
     def __init__(self, sedol_code: str, number_of_shares: float, price: str, share_value: float,
                  ptm_levy: float, commission: float, stamp_duty: float, settlement_date: datetime.date,
@@ -431,7 +440,7 @@ class DealConfirmation(Price):
                        )
 
     def __str__(self):
-        return f"""DealConfirmation[
+        return f"""MarketOrderConfirmation[
             sedol_code={self.sedol_code},
             number_of_shares={self.number_of_shares},
             price={self.price},
@@ -447,3 +456,4 @@ class DealConfirmation(Price):
             fx_charge={self.fx_charge},
             category_code={self.category_code}
         ]"""
+

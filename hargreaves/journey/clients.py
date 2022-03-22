@@ -12,8 +12,11 @@ from hargreaves.authentication.clients import LoggedInSession, AuthenticationCli
 from hargreaves.config import ApiConfiguration
 from hargreaves.journey.storage import CookiesFileStorage, RequestSessionFileStorage
 from hargreaves.search.clients import SecuritySearchClient
-from hargreaves.trade.clients import TradeClient
-from hargreaves.trade.models import Deal, PriceQuote
+from hargreaves.session.clients import SessionClient
+from hargreaves.trade.manual.clients import ManualOrderClient
+from hargreaves.trade.manual.models import ManualOrder
+from hargreaves.trade.market.clients import MarketOrderClient
+from hargreaves.trade.market.models import MarketOrder, MarketOrderQuote
 from hargreaves.utils.paths import PathHelper
 from hargreaves.utils.timings import ITimeService, TimeService
 from hargreaves.web.cookies import HLCookieHelper
@@ -73,22 +76,46 @@ class WebSessionManager:
         client = SecuritySearchClient(self.__logger, self.__web_session, self.__time_service)
         return client.investment_search(search_string, investment_types)
 
-    def get_security_price(self, account_id: int, sedol_code: str, category_code: str):
+    def get_market_order_info(self, account_id: int, sedol_code: str, category_code: str):
         self.__time_service.sleep()
-        client = TradeClient(self.__logger, self.__logged_in_session, self.__time_service)
-        return client.get_security_price(account_id=account_id,
-                                         sedol_code=sedol_code, category_code=category_code)
+        market_order_client = MarketOrderClient(self.__logger, self.__logged_in_session)
+        return market_order_client.get_market_order_info(account_id=account_id,
+                                                         sedol_code=sedol_code, category_code=category_code)
 
-    def get_quote(self, order: Deal):
+    def get_market_order_quote(self, order: MarketOrder):
         self.__time_service.sleep()
-        client = TradeClient(self.__logger, self.__logged_in_session, self.__time_service)
-        return client.get_quote(order)
 
-    def execute_deal(self, price_quote: PriceQuote):
+        session_client = SessionClient(self.__logger, self.__logged_in_session, self.__time_service)
+        session_client.session_keepalive(sedol_code=order.sedol_code, session_hl_vt=order.hl_vt)
+
+        market_order_client = MarketOrderClient(self.__logger, self.__logged_in_session)
+        return market_order_client.get_market_order_quote(order)
+
+    def execute_market_order(self, price_quote: MarketOrderQuote):
         self.__time_service.sleep(min=2, max=4)
         self.__logger.debug(f"execute_deal: OK, lets confirm ...")
-        client = TradeClient(self.__logger, self.__logged_in_session, self.__time_service)
-        return client.execute_deal(price_quote)
+
+        session_client = SessionClient(self.__logger, self.__logged_in_session, self.__time_service)
+        session_client.session_keepalive(sedol_code=price_quote.sedol_code, session_hl_vt=price_quote.session_hl_vt)
+
+        market_order_client = MarketOrderClient(self.__logger, self.__logged_in_session)
+        return market_order_client.execute_market_order(price_quote)
+
+    def get_manual_order_info(self, account_id: int, sedol_code: str, category_code: str):
+        self.__time_service.sleep()
+        manual_order_client = ManualOrderClient(self.__logger, self.__logged_in_session)
+        return manual_order_client.get_manual_order_info(account_id=account_id,
+                                                         sedol_code=sedol_code, category_code=category_code)
+
+    def submit_manual_order(self, order: ManualOrder):
+        self.__time_service.sleep(min=2, max=4)
+        self.__logger.debug(f"submit_manual_order ...")
+
+        session_client = SessionClient(self.__logger, self.__logged_in_session, self.__time_service)
+        session_client.session_keepalive(sedol_code=order.sedol, session_hl_vt=order.hl_vt)
+
+        manual_order_client = ManualOrderClient(self.__logger, self.__logged_in_session)
+        return manual_order_client.submit_manual_order(order)
 
     def logout(self):
         client = AuthenticationClient(self.__logger, self.__time_service, self.__web_session)
@@ -99,7 +126,6 @@ class WebSessionManager:
         self.__request_session_storage.write(self.__request_session_context, self.__api_config)
 
     def convert_HAR_to_markdown(self):
-
         exclude_patterns = Har2MdController.DEFAULT_EXCLUDE.split(',')
         input_file = Path(self.__request_session_storage.get_location())
         output_folder = Path.joinpath(input_file.parent, input_file.stem)

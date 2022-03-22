@@ -6,7 +6,7 @@ from hargreaves.account import AccountType
 from hargreaves.config.loader import ConfigLoader
 from hargreaves.journey.clients import WebSessionManagerFactory
 from hargreaves.search import InvestmentTypes
-from hargreaves.trade import Buy
+from hargreaves.trade.manual.models import ManualBuyOrder, ManualOrder
 from hargreaves.utils.logging import LoggerFactory
 
 if __name__ == '__main__':
@@ -16,14 +16,14 @@ if __name__ == '__main__':
     config = ConfigLoader(logger).load_api_config(str(Path(__file__).parent) + "/secrets.json")
 
     # US
-    # stock_ticker = 'TUSK'
-    # stock_quantity = 50  # +/- £86.19 @ 2.09 USD
-    # investment_types = [InvestmentTypes.OVERSEAS]
+    stock_ticker = 'TUSK'
+    stock_quantity = 50  # +/- £86.19 @ 2.09 USD
+    investment_types = [InvestmentTypes.OVERSEAS]
 
     # UK
-    stock_ticker = 'PDG'
-    stock_quantity = 200  # +/- £49.87 @ 21.852p
-    investment_types = [InvestmentTypes.SHARES]
+    # stock_ticker = 'PDG'
+    # stock_quantity = 200  # +/- £49.87 @ 21.852p
+    # investment_types = [InvestmentTypes.SHARES]
 
     web_session_manager = WebSessionManagerFactory.create_with_file_storage(logger)
     try:
@@ -49,19 +49,21 @@ if __name__ == '__main__':
         category_code = search_result[0].category
 
         # navigate to the security and select the account
-        deal_info = web_session_manager.get_security_price(account_id=account_id,
-                                                           sedol_code=sedol_code, category_code=category_code)
-        print(deal_info.as_form_fields())
+        manual_order_info = web_session_manager.get_manual_order_info(account_id=account_id,
+                                                                      sedol_code=sedol_code,
+                                                                      category_code=category_code)
+        print(manual_order_info.as_form_fields())
 
-        # Get a quote
-        deal = Buy(deal_info=deal_info, quantity=stock_quantity,
-                   shares_or_value=Buy.SHARE_QUANTITY)
-        price_quote = web_session_manager.get_quote(deal)
-        print(price_quote)
+        buy_order = ManualBuyOrder(
+            base_order=manual_order_info,
+            quantity=stock_quantity,
+            shares_or_value=ManualOrder.SHARE_QUANTITY,
+            limit=None
+        )
 
-        # Confirm deal
-        deal_confirmation = web_session_manager.execute_deal(price_quote)
-        print(deal_confirmation)
+        # Submit order
+        order_confirmation = web_session_manager.submit_manual_order(buy_order)
+        print(order_confirmation)
 
     except Exception as ex:
         logger.error(traceback.print_exc())

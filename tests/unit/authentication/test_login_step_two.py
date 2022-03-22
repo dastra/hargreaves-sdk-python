@@ -1,6 +1,8 @@
 from pathlib import Path
+from urllib.parse import urlencode
 
 import pytest
+from requests import Response
 
 from hargreaves.authentication.login.step_two import *
 from hargreaves.config.models import ApiConfiguration
@@ -26,14 +28,26 @@ def test_post_secure_numbers():
     config = __get_config()
 
     with MockWebSession() as web_session:
-        web_session.mock_post(
+
+        expected_params={
+            "hl_vt": HL_VT,
+            "online-password-verification": "password",
+            "secure-number[1]": 5,
+            "secure-number[2]": 7,
+            "secure-number[3]": 8,
+            "submit": " Log in   "
+        }
+
+        mock = web_session.mock_post(
             'https://online.hl.co.uk/my-accounts/login-step-two',
-            data={"hl_vt": HL_VT, "online-password-verification": "password", "secure-number[1]": 5,
-                  "secure-number[2]": 7, "secure-number[3]": 8},
             status_code=http.HTTPStatus.OK
         )
 
-        post_secure_numbers(web_session, HL_VT, config, [1, 3, 4])
+        actual_response = post_secure_numbers(web_session, HL_VT, config, [1, 3, 4])
+        actual_param = mock.request_history[0].text
+
+        assert urlencode(expected_params) == actual_param
+        assert type(actual_response) == Response
 
 
 def __get_config():

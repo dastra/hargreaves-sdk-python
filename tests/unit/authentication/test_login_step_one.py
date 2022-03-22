@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlencode
 
 import pytest
 
@@ -26,14 +27,22 @@ def test_post_username_dob():
     config = __get_config()
 
     with MockWebSession() as web_session:
-        web_session.mock_post(
-                url='https://online.hl.co.uk/my-accounts/login-step-one',
-                data={"hl_vt": HL_VT, "username": "test", "date-of-birth": "010204"},
-                status_code=http.HTTPStatus.OK
-            )
+        expected_params = {
+             "hl_vt": HL_VT,
+             "username": "test",
+             "date-of-birth": "010204"
+        }
 
-        post_username_dob(web_session, HL_VT, config)
+        mock = web_session.mock_post(
+            url='https://online.hl.co.uk/my-accounts/login-step-one',
+            status_code=http.HTTPStatus.OK
+        )
 
+        actual_response = post_username_dob(web_session, HL_VT, config)
+        actual_param = mock.request_history[0].text
+
+        assert urlencode(expected_params) == actual_param
+        assert type(actual_response) == Response
 
 def __get_config():
     return ApiConfiguration('test', 'password', '010204', '567890')

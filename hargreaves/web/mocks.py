@@ -17,7 +17,7 @@ class MockWebSession(IWebSession):
         self.__session = requests.Session()
         self.__mock_request = Mocker()
 
-    def mock_get(self, url: str, status_code: int, params=None, headers=None, text=None):
+    def mock_get(self, url: str, status_code: int, params=None, headers=None, response_text=None):
         params = params if params is not None else {}
         headers = headers if headers is not None else {}
         if params is None:
@@ -28,18 +28,21 @@ class MockWebSession(IWebSession):
                 url=request_url,
                 headers=headers,
                 status_code=status_code,
-                text=text
+                text=response_text
             )
+        return self.__mock_request
 
-    def mock_post(self, url: str, status_code: int, data=None, headers=None):
-        data = data if data is not None else {}
+    def mock_post(self, url: str, status_code: int, headers=None, response_text=None):
+        # data = data if data is not None else {}
         headers = headers if headers is not None else {}
+        # self.__mock_request.add_matcher()
         self.__mock_request.post(
                 url,
-                json=data,
                 headers=headers,
-                status_code=status_code
+                status_code=status_code,
+                text=response_text
             )
+        return self.__mock_request
 
     def get(self, url: str, request_type: WebRequestType = WebRequestType.Document,
             params=None, headers=None) -> Response:

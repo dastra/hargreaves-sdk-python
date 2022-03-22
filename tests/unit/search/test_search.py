@@ -32,7 +32,7 @@ def test_send_search_request():
             headers={
                 'Referer': 'https://online.hl.co.uk/my-accounts/stock_and_fund_search/action/deal'
             },
-            text=search_results_found_jsonp,
+            response_text=search_results_found_jsonp,
             status_code=http.HTTPStatus.OK
         )
 
