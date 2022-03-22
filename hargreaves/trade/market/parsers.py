@@ -3,11 +3,11 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from hargreaves.trade.errors import MarketClosedError, DealFailedError
-from hargreaves.trade.market.models import MarketOrder, MarketOrderQuote, MarketOrderConfirmation
+from hargreaves.trade.market.errors import MarketClosedError, MarketOrderFailedError
+from hargreaves.trade.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrderConfirmation
 
 
-def parse_market_order_entry_page(order_html: str, category_code: str) -> MarketOrder:
+def parse_market_order_entry_page(order_html: str, category_code: str) -> MarketOrderPosition:
     soup = BeautifulSoup(order_html, 'html.parser')
 
     # Is the market closed?   We cannot rely on the "Market closed" text being shown as it's always present in the HTML.
@@ -24,14 +24,14 @@ def parse_market_order_entry_page(order_html: str, category_code: str) -> Market
     for hidden_tag in form.find_all("input", type="hidden"):
         tags[hidden_tag['name']] = hidden_tag['value']
 
-    return MarketOrder(hl_vt=tags['hl_vt'], stock_ticker=tags['ticker'], security_name=tags['security_name'],
-                       sedol_code=tags['sedol'], isin_code=tags['isin'], epic_code=tags['epic'],
-                       currency_code=tags['currency_code'], exchange=tags['exchange'],
-                       fixed_interest=bool(tags['fixed_interest'] == '1'), account_id=int(tags['product_no']),
-                       total_cash_available=float(tags['available']), bid_price=tags['bid'],
-                       units_held=float(tags['holding']), value_gbp=float(tags['holding_value']),
-                       category_code=category_code
-                       )
+    return MarketOrderPosition(hl_vt=tags['hl_vt'], stock_ticker=tags['ticker'], security_name=tags['security_name'],
+                               sedol_code=tags['sedol'], isin_code=tags['isin'], epic_code=tags['epic'],
+                               currency_code=tags['currency_code'], exchange=tags['exchange'],
+                               fixed_interest=bool(tags['fixed_interest'] == '1'), account_id=int(tags['product_no']),
+                               total_cash_available=float(tags['available']), bid_price=tags['bid'],
+                               units_held=float(tags['holding']), value_gbp=float(tags['holding_value']),
+                               category_code=category_code
+                               )
 
 
 # Maps the row names on the HTML form to variable names
@@ -116,9 +116,9 @@ def parse_market_order_confirmation_page(confirm_html: str, category_code: str) 
     if qc is None:
         err = soup.select_one('div#content-body-full > div > div.dialog_content')
         if err is None:
-            raise DealFailedError("Unexpected Error, see HTML for more details", confirm_html)
+            raise MarketOrderFailedError("Unexpected Error, see HTML for more details", confirm_html)
         else:
-            raise DealFailedError(err.get_text(strip=True), confirm_html)
+            raise MarketOrderFailedError(err.get_text(strip=True), confirm_html)
 
     vals = {
         'sedol_code': qc.get('data-trade-sedol'),

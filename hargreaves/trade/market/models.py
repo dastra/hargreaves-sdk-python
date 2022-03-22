@@ -1,9 +1,10 @@
 import datetime
-import re
 from typing import Optional
 
+from hargreaves.trade.models import OrderPositionType, OrderAmountType
 
-class MarketOrder:
+
+class MarketOrderPosition:
     _hl_vt: str
     _stock_ticker: str
     _security_name: str
@@ -21,9 +22,8 @@ class MarketOrder:
     _category_code: str
 
     def __init__(self, hl_vt: str, stock_ticker: str, security_name: str, sedol_code: str, isin_code: str,
-                 epic_code: str,
-                 currency_code: str, exchange: str, fixed_interest: bool, account_id: int, total_cash_available: float,
-                 bid_price: str, units_held: float, value_gbp: float,
+                 epic_code: str, currency_code: str, exchange: str, fixed_interest: bool, account_id: int,
+                 total_cash_available: float, bid_price: str, units_held: float, value_gbp: float,
                  category_code: str
                  ):
         """
@@ -38,12 +38,10 @@ class MarketOrder:
         :param fixed_interest: bool 0
         :param account_id: int 70 - Account id
         :param total_cash_available: float 60398.57 - total cash
-        :param bid_price: str 20.00p - sell price (seems like?)
-            # TODO we will need buy and sell prices.
+        :param bid_price: str 20.00p - buy/sell price
         :param units_held: float 69930 - current holding, in number of shares
         :param value_gbp: float 13986    #  current holding value in GBP
         """
-
         self._hl_vt = hl_vt
         self._stock_ticker = stock_ticker
         self._security_name = security_name
@@ -60,9 +58,6 @@ class MarketOrder:
         self._value_gbp = value_gbp
         self._category_code = category_code
 
-    SHARE_QUANTITY = 'quantity'
-    SHARE_VALUE = 'value'
-
     def as_form_fields(self) -> dict:
         return {
             'hl_vt': self.hl_vt,
@@ -78,7 +73,9 @@ class MarketOrder:
             'currency_code': str(self.currency_code),
             'exchange': str(self.exchange),
             'fixed_interest': str(int(self.fixed_interest)),
-            'ticker': str(self.stock_ticker)
+            'ticker': str(self.stock_ticker),
+            'remaining_holding': str(self.units_held),
+            'remaining_holding_value': str(self.remaining_value_pence),
         }
 
     @property
@@ -118,6 +115,10 @@ class MarketOrder:
         return self._value_gbp
 
     @property
+    def remaining_value_pence(self):
+        return int(self._value_gbp * 100)
+
+    @property
     def isin_code(self):
         return self._isin_code
 
@@ -142,110 +143,65 @@ class MarketOrder:
         return self._category_code
 
 
-class MarketBuyOrder(MarketOrder):
+class MarketOrder():
+    _position: MarketOrderPosition
+    _position_type: OrderPositionType
+    _amount_type: OrderAmountType
     _quantity: float
-    _shares_or_value: str
     _including_charges: bool
 
-    # noinspection PyMissingConstructor
-    def __init__(self, order_info: MarketOrder, quantity: float, shares_or_value: str, including_charges: bool = False):
-        self.__dict__ = order_info.__dict__.copy()
+    def __init__(self,
+                 position: MarketOrderPosition,
+                 position_type: OrderPositionType,
+                 amount_type: OrderAmountType,
+                 quantity: float,
+                 including_charges: bool = False):
+        self._position = position
+        self._position_type = position_type
+        self._amount_type = amount_type
         self._quantity = quantity
-        self._shares_or_value = shares_or_value
         self._including_charges = including_charges
 
     def as_form_fields(self) -> dict:
-        di_fields = super().as_form_fields()
+        position_fields = self._position.as_form_fields()
 
         buy_fields = {
-            'remaining_holding': str(self.remaining_units_held),
-            'remaining_holding_value': str(self.remaining_value_pence),
-            'bs': self.buy_or_sell,
+            'bs': self._position_type.value,
             'quantity': str(self.quantity),
-            'qs': self.shares_or_value
+            'qs': self._amount_type.value
         }
-        if self.shares_or_value == MarketOrder.SHARE_VALUE:
+        if self._amount_type == OrderAmountType.Value:
             buy_fields['inc_chrgs'] = '1' if self.including_charges else '0'
 
-        return {**di_fields, **buy_fields}
+        return {**position_fields, **buy_fields}
 
     @property
-    def remaining_units_held(self):
-        return self._units_held
-
-    @property
-    def remaining_value_pence(self):
-        return int(self._value_gbp * 100)
-
-    @property
-    def buy_or_sell(self):
-        return 'Buy'
+    def position_type(self):
+        return self._position_type
 
     @property
     def quantity(self):
         return self._quantity
 
     @property
-    def shares_or_value(self):
-        return self._shares_or_value
+    def amount_type(self):
+        return self._amount_type
+
+    @property
+    def hl_vt(self):
+        return self._position.hl_vt
+
+    @property
+    def sedol(self):
+        return self._position.sedol_code
+
+    @property
+    def category_code(self):
+        return self._position.category_code
 
     @property
     def including_charges(self):
         return self._including_charges
-
-
-class MarketSellOrder(MarketOrder):
-    _quantity: float
-    _shares_or_value: str
-
-    def __init__(self, hl_vt: str, stock_ticker: str, security_name: str, sedol_code: str, isin_code: str,
-                 epic_code: str,
-                 currency_code: str, exchange: str, fixed_interest: bool, account_id: int,
-                 total_cash_available: float, bid_price: str, units_held: float, value_gbp: float,
-                 quantity: float, shares_or_value: str
-                 ):
-        """
-        :param quantity: float 100.00  - Quantity of thing.  To 2dp when qs = value, integer when qs = quantity
-        :param shares_or_value: str value         - Either value (for £100 GBP of shares) or quantity (for 100 shares)
-        """
-
-        MarketOrder.__init__(self, hl_vt=hl_vt, stock_ticker=stock_ticker, security_name=security_name,
-                             sedol_code=sedol_code, isin_code=isin_code, epic_code=epic_code, currency_code=currency_code,
-                             exchange=exchange, fixed_interest=fixed_interest, account_id=account_id,
-                             total_cash_available=total_cash_available, bid_price=bid_price, units_held=units_held,
-                             value_gbp=value_gbp)
-
-        self._quantity = quantity
-        self._shares_or_value = shares_or_value
-
-    def __init__(self, order_info: MarketOrder, quantity: float, shares_or_value: str):
-        self.__dict__ = order_info.__dict__.copy()
-        self._quantity = quantity
-        self._shares_or_value = shares_or_value
-
-    @property
-    def remaining_units_held(self):
-        return self._units_held - self._quantity
-
-    @property
-    def remaining_value_pence(self):
-        return int((self._value_gbp * 100) - (self._quantity * int(re.sub('[^\\d.]+', "", self.bid_price))))
-
-    @property
-    def buy_or_sell(self):
-        return 'Sell'
-
-    @property
-    def quantity(self):
-        return self._quantity
-
-    @property
-    def shares_or_value(self):
-        return self._shares_or_value
-
-    @property
-    def including_charges(self):
-        return False
 
 
 class Price:
@@ -368,10 +324,10 @@ class MarketOrderQuote(Price):
                  sedol_code: str,
                  number_of_shares: float,
                  price: str,
-                 share_value: float,
-                 ptm_levy: float,
+                 share_value: Optional[float],
+                 ptm_levy: Optional[float],
                  commission: float,
-                 stamp_duty: float,
+                 stamp_duty: Optional[float],
                  settlement_date: datetime.date,
                  total_trade_value: float,
                  exchange_rate: Optional[float],
@@ -456,4 +412,3 @@ class MarketOrderConfirmation(Price):
             fx_charge={self.fx_charge},
             category_code={self.category_code}
         ]"""
-

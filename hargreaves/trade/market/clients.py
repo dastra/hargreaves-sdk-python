@@ -2,8 +2,8 @@ import http
 from logging import Logger
 
 from hargreaves.search.models import InvestmentCategoryTypes
-from hargreaves.trade.errors import DealFailedError
-from hargreaves.trade.market.models import MarketOrder, MarketOrderQuote, MarketOrderConfirmation
+from hargreaves.trade.market.errors import MarketOrderFailedError
+from hargreaves.trade.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrderConfirmation, MarketOrder
 from hargreaves.trade.market.parsers import parse_market_order_entry_page, parse_market_order_quote_page, \
     parse_market_order_confirmation_page
 from hargreaves.web.session import IWebSession, WebRequestType
@@ -20,7 +20,7 @@ class MarketOrderClient:
         self.__logger = logger
         self.__web_session = web_session
 
-    def get_market_order_info(self, account_id: int, sedol_code: str, category_code: str) -> MarketOrder:
+    def get_current_position(self, account_id: int, sedol_code: str, category_code: str) -> MarketOrderPosition:
         # selects account & security
         # Fetches the deal page where you say whether you're buying or selling.
 
@@ -29,9 +29,9 @@ class MarketOrderClient:
         order_info = parse_market_order_entry_page(order_html, category_code)
         return order_info
 
-    def get_market_order_quote(self, order: MarketOrder) -> MarketOrderQuote:
+    def get_order_quote(self, order: MarketOrder) -> MarketOrderQuote:
         request_headers = {
-            'Referer': f'https://online.hl.co.uk/my-accounts/security_deal/sedol/{order.sedol_code}'
+            'Referer': f'https://online.hl.co.uk/my-accounts/security_deal/sedol/{order.sedol}'
         }
 
         if order.category_code == InvestmentCategoryTypes.OVERSEAS:
@@ -51,7 +51,7 @@ class MarketOrderClient:
         price_quote = parse_market_order_quote_page(res.text, category_code=order.category_code)
         return price_quote
 
-    def execute_market_order(self, market_order_quote: MarketOrderQuote) -> MarketOrderConfirmation:
+    def execute_order(self, market_order_quote: MarketOrderQuote) -> MarketOrderConfirmation:
         request_headers = {
             'Referer': f'https://online.hl.co.uk/my-accounts/security_deal/sedol/{market_order_quote.sedol_code}'
         }
@@ -71,7 +71,7 @@ class MarketOrderClient:
                                       data=form, headers=request_headers)
 
         if res.status_code != http.HTTPStatus.OK:
-            raise DealFailedError(f"Purchase invalid, HTTP response code was {res.status_code}")
+            raise MarketOrderFailedError(f"Purchase invalid, HTTP response code was {res.status_code}")
 
         order_confirmation = parse_market_order_confirmation_page(confirm_html=res.text,
                                                                   category_code=market_order_quote.category_code)

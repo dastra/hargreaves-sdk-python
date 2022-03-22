@@ -1,26 +1,29 @@
 from bs4 import BeautifulSoup
 
-from hargreaves.trade.errors import DealFailedError
-from hargreaves.trade.manual.models import ManualOrder, ManualOrderConfirmation
+from hargreaves.trade.manual.errors import ManualOrderFailedError
+from hargreaves.trade.manual.models import ManualOrderConfirmation, ManualOrderPosition
 from hargreaves.utils.input import InputHelper
 
 
-def parse_manual_order_entry_page(order_html: str, category_code: str) -> ManualOrder:
-
+def parse_manual_order_entry_page(order_html: str, category_code: str) -> ManualOrderPosition:
     soup = BeautifulSoup(order_html, 'html.parser')
+
     form = soup.find("form", id="oh_form")
+
+    if form is None:
+        raise ManualOrderFailedError(message="Could not find 'oh_form'", html=order_html)
 
     # Fetch the fields needed for the next step
     tags = {}
     for hidden_tag in form.find_all("input", type="hidden"):
         tags[hidden_tag['name']] = hidden_tag['value']
 
-    return ManualOrder(
+    return ManualOrderPosition(
         hl_vt=str(tags['hl_vt']),
-        type=str(tags['type']),
+        security_type=str(tags['type']),
         out_of_hours=InputHelper.parse_bool(tags['out_of_hours']),
         sedol=str(tags['sedol']),
-        product_no=InputHelper.parse_int(tags['product_no']),
+        account_id=InputHelper.parse_int(tags['product_no']),
         available=InputHelper.parse_float(tags['available']),
         holding=InputHelper.parse_float(tags['holding']),
         holding_value=InputHelper.parse_float(tags['holding_value']),
@@ -39,19 +42,24 @@ def parse_manual_order_entry_page(order_html: str, category_code: str) -> Manual
 def parse_manual_order_confirmation_page(confirm_html: str) -> ManualOrderConfirmation:
     soup = BeautifulSoup(confirm_html, 'html.parser')
 
+    error_box = soup.select_one('div[class="box error-box spacer-bottom"]')
+    if error_box is not None:
+        raise ManualOrderFailedError(message=error_box.get_text(strip=True), html=confirm_html)
+
     pending_orders_table = soup.select_one('table[summary="Your current pending orders"]')
     if pending_orders_table is None:
-        raise DealFailedError("Pending Order Table Not Found, see HTML for more details", confirm_html)
+        raise ManualOrderFailedError("Pending Order Table Not Found, see HTML for more details", confirm_html)
 
     table_columns = pending_orders_table.find_all("th")
     if len(table_columns) != 6:
-        raise DealFailedError(f"Unexpected number of header rows({len(table_columns)}), see HTML for more details",
-                              pending_orders_table.text)
+        raise ManualOrderFailedError(
+            f"Unexpected number of header rows({len(table_columns)}), see HTML for more details",
+            pending_orders_table.text)
 
     table_cells = pending_orders_table.find_all("td")
     if len(table_cells) != 6:
-        raise DealFailedError(f"Unexpected number of cells({len(table_cells)}), see HTML for more details",
-                              pending_orders_table.text)
+        raise ManualOrderFailedError(f"Unexpected number of cells({len(table_cells)}), see HTML for more details",
+                                     pending_orders_table.text)
     raw_order_data = {}
     for col_index in range(len(table_columns)):
         item_key = table_columns[col_index].get_text(strip=True)

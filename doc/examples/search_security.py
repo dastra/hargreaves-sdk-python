@@ -28,5 +28,5 @@ if __name__ == '__main__':
     except Exception as ex:
         logger.error(ex)
     finally:
-        web_session_manager.stop_session()
+        web_session_manager.stop_session(config)
         web_session_manager.convert_HAR_to_markdown()

@@ -20,7 +20,6 @@ class SessionClient:
         self.__time_service = time_service
 
     def session_keepalive(self, sedol_code: str, session_hl_vt: str):
-        self.__logger.debug("Perform 'Session Keepalive'")
         # pid is the time in milliseconds since the epoch
         pid = self.__time_service.get_current_time_as_epoch_time()
 

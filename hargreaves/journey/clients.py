@@ -16,7 +16,7 @@ from hargreaves.session.clients import SessionClient
 from hargreaves.trade.manual.clients import ManualOrderClient
 from hargreaves.trade.manual.models import ManualOrder
 from hargreaves.trade.market.clients import MarketOrderClient
-from hargreaves.trade.market.models import MarketOrder, MarketOrderQuote
+from hargreaves.trade.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrder
 from hargreaves.utils.paths import PathHelper
 from hargreaves.utils.timings import ITimeService, TimeService
 from hargreaves.web.cookies import HLCookieHelper
@@ -26,15 +26,23 @@ from hargreaves.web.storage import ICookieStorage, IRequestSessionStorage
 
 
 class WebSessionManager:
+    # dependencies
     __logger: Logger
     __time_service: ITimeService
     __cookies_storage: ICookieStorage
     __request_session_storage: IRequestSessionStorage
 
+    # state
     __web_session: WebSession
-    __logged_in_session: LoggedInSession
     __request_session_context: RequestSessionContext
-    __api_config: ApiConfiguration
+
+    # module clients
+    __authentication_client = AuthenticationClient
+    __account_client: AccountClient
+    __search_client: SecuritySearchClient
+    __session_client: SessionClient
+    __market_order_client: MarketOrderClient
+    __manual_order_client: ManualOrderClient
 
     def __init__(self,
                  logger: Logger,
@@ -48,7 +56,6 @@ class WebSessionManager:
         self.__request_session_storage = request_session_storage
 
     def start_session(self, api_config: ApiConfiguration):
-        self.__api_config = api_config
 
         self.__request_session_context = RequestSessionContext()
         session = requests.Session()
@@ -61,69 +68,96 @@ class WebSessionManager:
         self.__logger.debug(f"Set Default Cookies...")
         HLCookieHelper.set_default_cookies(self.__web_session.cookies)
 
-        self.__logged_in_session = LoggedInSession(self.__logger, self.__web_session, api_config)
+        logged_in_session = LoggedInSession(self.__logger, self.__web_session, api_config)
+
+        self.__search_client = SecuritySearchClient(self.__logger, self.__web_session, self.__time_service)
+        self.__authentication_client = AuthenticationClient(self.__logger, self.__time_service, self.__web_session)
+        self.__session_client = SessionClient(self.__logger, logged_in_session, self.__time_service)
+        self.__account_client = AccountClient(self.__logger, logged_in_session)
+        self.__market_order_client = MarketOrderClient(self.__logger, logged_in_session)
+        self.__manual_order_client = ManualOrderClient(self.__logger, logged_in_session)
 
     def get_account_summary(self) -> List[AccountSummary]:
-        client = AccountClient(self.__logger, self.__logged_in_session)
-        return client.get_account_summary()
+        account_summary = self.__account_client.get_account_summary()
+        return account_summary
 
     def get_account_detail(self, account_summary: AccountSummary) -> AccountDetail:
-        client = AccountClient(self.__logger, self.__logged_in_session)
-        return client.get_account_detail(account_summary)
+        account_detail = self.__account_client.get_account_detail(account_summary)
+        return account_detail
 
     def search_security(self, search_string: str, investment_types: list):
         self.__time_service.sleep()
-        client = SecuritySearchClient(self.__logger, self.__web_session, self.__time_service)
-        return client.investment_search(search_string, investment_types)
+        search_results = self.__search_client.investment_search(search_string, investment_types)
+        return search_results
 
-    def get_market_order_info(self, account_id: int, sedol_code: str, category_code: str):
+    def get_market_order_position(self, account_id: int, sedol_code: str, category_code: str):
         self.__time_service.sleep()
-        market_order_client = MarketOrderClient(self.__logger, self.__logged_in_session)
-        return market_order_client.get_market_order_info(account_id=account_id,
-                                                         sedol_code=sedol_code, category_code=category_code)
+
+        self.__logger.debug("Get Current Position")
+
+        current_position = self.__market_order_client.get_current_position(
+            account_id=account_id,
+            sedol_code=sedol_code,
+            category_code=category_code)
+
+        return current_position
 
     def get_market_order_quote(self, order: MarketOrder):
         self.__time_service.sleep()
 
-        session_client = SessionClient(self.__logger, self.__logged_in_session, self.__time_service)
-        session_client.session_keepalive(sedol_code=order.sedol_code, session_hl_vt=order.hl_vt)
+        self.__logger.debug("Perform 'Session Keepalive'")
 
-        market_order_client = MarketOrderClient(self.__logger, self.__logged_in_session)
-        return market_order_client.get_market_order_quote(order)
+        self.__session_client.session_keepalive(sedol_code=order.sedol, session_hl_vt=order.hl_vt)
+
+        self.__logger.debug("Get Order Quote")
+
+        order_quote = self.__market_order_client.get_order_quote(order)
+        return order_quote
 
     def execute_market_order(self, price_quote: MarketOrderQuote):
         self.__time_service.sleep(min=2, max=4)
-        self.__logger.debug(f"execute_deal: OK, lets confirm ...")
 
-        session_client = SessionClient(self.__logger, self.__logged_in_session, self.__time_service)
-        session_client.session_keepalive(sedol_code=price_quote.sedol_code, session_hl_vt=price_quote.session_hl_vt)
+        self.__logger.debug("Perform 'Session Keepalive'")
 
-        market_order_client = MarketOrderClient(self.__logger, self.__logged_in_session)
-        return market_order_client.execute_market_order(price_quote)
+        self.__session_client.session_keepalive(
+            sedol_code=price_quote.sedol_code, session_hl_vt=price_quote.session_hl_vt)
 
-    def get_manual_order_info(self, account_id: int, sedol_code: str, category_code: str):
+        self.__logger.debug(f"Execute (Confirm) Order ...")
+
+        order_confirmation = self.__market_order_client.execute_order(price_quote)
+        return order_confirmation
+
+    def get_manual_order_position(self, account_id: int, sedol_code: str, category_code: str):
         self.__time_service.sleep()
-        manual_order_client = ManualOrderClient(self.__logger, self.__logged_in_session)
-        return manual_order_client.get_manual_order_info(account_id=account_id,
-                                                         sedol_code=sedol_code, category_code=category_code)
+
+        self.__logger.debug("Get Current Position")
+
+        current_position = self.__manual_order_client.get_current_position(
+            account_id=account_id,
+            sedol_code=sedol_code,
+            category_code=category_code)
+
+        return current_position
 
     def submit_manual_order(self, order: ManualOrder):
         self.__time_service.sleep(min=2, max=4)
-        self.__logger.debug(f"submit_manual_order ...")
 
-        session_client = SessionClient(self.__logger, self.__logged_in_session, self.__time_service)
-        session_client.session_keepalive(sedol_code=order.sedol, session_hl_vt=order.hl_vt)
+        self.__logger.debug("Perform 'Session Keepalive'")
 
-        manual_order_client = ManualOrderClient(self.__logger, self.__logged_in_session)
-        return manual_order_client.submit_manual_order(order)
+        self.__session_client.session_keepalive(sedol_code=order.sedol, session_hl_vt=order.hl_vt)
+
+        self.__logger.debug(f"Submit Order ...")
+
+        order_confirmation = self.__manual_order_client.submit_order(order)
+        return order_confirmation
 
     def logout(self):
-        client = AuthenticationClient(self.__logger, self.__time_service, self.__web_session)
-        return client.logout()
+        self.__logger.debug(f"Logging Out ...")
+        return self.__authentication_client.logout()
 
-    def stop_session(self):
+    def stop_session(self, api_config: ApiConfiguration):
         self.__cookies_storage.save(self.__web_session.cookies)
-        self.__request_session_storage.write(self.__request_session_context, self.__api_config)
+        self.__request_session_storage.write(self.__request_session_context, api_config)
 
     def convert_HAR_to_markdown(self):
         exclude_patterns = Har2MdController.DEFAULT_EXCLUDE.split(',')

@@ -20,7 +20,7 @@ class MarketClosedError(BaseException):
         return self.__can_place_limit_order
 
 
-class DealFailedError(BaseException):
+class MarketOrderFailedError(BaseException):
     html: str
 
     def __init__(self, message: str, html: str = None):
