@@ -7,10 +7,10 @@ from hargreaves.config.models import ApiConfiguration
 
 
 class ConfigLoader:
-    __logger: Logger
+    _logger: Logger
 
     def __init__(self, logger: Logger):
-        self.__logger = logger
+        self._logger = logger
 
     def load_api_config(self, api_secrets_filename=None):
         """
@@ -21,7 +21,7 @@ class ConfigLoader:
         # in the secrets.json file and environment variables e.g. username is username (secrets.json) and
         # HL_USERNAME (env variable)
 
-        self.__logger.debug(f"ConfigLoader::load_api_config(api_secrets_filename={api_secrets_filename}) - Start")
+        self._logger.debug(f"ConfigLoader::load_api_config(api_secrets_filename={api_secrets_filename}) - Start")
 
         with open(Path(__file__).parent.joinpath('config_keys.json')) as json_file:
             config_keys = json.load(json_file)
@@ -29,7 +29,7 @@ class ConfigLoader:
         # If there is a secrets file specified and it exists get the details from it
         if api_secrets_filename is not None and os.path.exists(api_secrets_filename) and os.path.isfile(
                 api_secrets_filename):
-            self.__logger.debug(f"loading secrets file {api_secrets_filename}...")
+            self._logger.debug(f"loading secrets file {api_secrets_filename}...")
             with open(api_secrets_filename, "r") as secrets:
                 config = json.load(secrets)
         # If there is a secrets file specified and it does not exist log a warning to indicate that the specified file
@@ -43,7 +43,7 @@ class ConfigLoader:
         else:
             config = {}
 
-        self.__logger.debug(f"retrieve env values...")
+        self._logger.debug(f"retrieve env values...")
         # Populate the values for the api configuration preferring the secrets file over the environment variables
         populated_api_config_values = {
             key: config.get(value["config"], os.getenv(value["env"], None)) for key, value in config_keys.items()
@@ -57,6 +57,6 @@ class ConfigLoader:
         # Create the ApiConfiguration
 
         api_config = ApiConfiguration(**populated_api_config_values)
-        self.__logger.debug(f"ConfigLoader::load_api_config() - Done")
+        self._logger.debug(f"ConfigLoader::load_api_config() - Done")
 
         return api_config

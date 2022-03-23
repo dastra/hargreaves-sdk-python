@@ -3,11 +3,13 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from hargreaves.search.models import InvestmentCategoryTypes
+from hargreaves.session.clients import MockSessionClient
 from hargreaves.trade.market.clients import MarketOrderClient
 from hargreaves.trade.market.models import MarketOrderQuote, MarketOrderConfirmation
 from hargreaves.trade.market.parsers import parse_market_order_quote_page
 from hargreaves.utils.input import InputHelper
 from hargreaves.utils.logging import LoggerFactory
+from hargreaves.utils.timings import MockTimeService
 from hargreaves.web.mocks import MockWebSession
 
 
@@ -95,12 +97,16 @@ def test_execute_market_sell_order_confirmation_uk_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        client = MarketOrderClient(logger, web_session)
+        time_service = MockTimeService()
+        session_client = MockSessionClient()
+        client = MarketOrderClient(logger, time_service, web_session, session_client)
+
         order_confirmation = client.execute_order(market_order_quote=market_order_quote)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
         assert type(order_confirmation) == MarketOrderConfirmation
+        assert session_client.was_called is True
 
 
 def test_execute_market_sell_order_confirmation_us_equity():
@@ -141,9 +147,13 @@ def test_execute_market_sell_order_confirmation_us_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        client = MarketOrderClient(logger, web_session)
+        time_service = MockTimeService()
+        session_client = MockSessionClient()
+        client = MarketOrderClient(logger, time_service, web_session, session_client)
+
         order_confirmation = client.execute_order(market_order_quote=market_order_quote)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
         assert type(order_confirmation) == MarketOrderConfirmation
+        assert session_client.was_called is True

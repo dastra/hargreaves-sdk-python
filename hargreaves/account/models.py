@@ -9,36 +9,39 @@ class AccountType:
 
 
 class AccountSummary:
+    _account_id: int
+    _account_type: str
+
     def __init__(self, account_id: int, account_type: str):
         """
         :param int account_id: The id of the account - i.e. 40
         :param str account_type: The type of the account - i.e. SIPP
         """
-        self.__account_id = account_id
-        self.__account_type = account_type
+        self._account_id = account_id
+        self._account_type = account_type
 
     @property
     def account_id(self):
-        return self.__account_id
+        return self._account_id
 
     @property
     def account_type(self):
-        return self.__account_type
+        return self._account_type
 
     def __str__(self):
-        return f"""AccountSummary[account_id={self.__account_id}, account_type={self.__account_type}]"""
+        return f"""AccountSummary[account_id={self._account_id}, account_type={self._account_type}]"""
 
 
 class Investment:
-    __stock_ticker: str
-    __security_name: str
-    __sedol_code: str
-    __units_held: float
-    __price_pence: float
-    __value_gbp: float
-    __cost_gbp: float
-    __gain_loss_gbp: float
-    __gain_loss_percentage: float
+    _stock_ticker: str
+    _security_name: str
+    _sedol_code: str
+    _units_held: float
+    _price_pence: float
+    _value_gbp: float
+    _cost_gbp: float
+    _gain_loss_gbp: float
+    _gain_loss_percentage: float
 
     def __init__(self, stock_ticker: str, security_name: str, sedol_code: str, units_held: float, price_pence: float,
                  value_gbp: float, cost_gbp: float, gain_loss_gbp: float, gain_loss_percentage: float):
@@ -53,51 +56,51 @@ class Investment:
         :param gain_loss_gbp: object - the gain or loss in pounds
         :param gain_loss_percentage: object - the gain or loss in %
         """
-        self.__stock_ticker = stock_ticker
-        self.__security_name = security_name
-        self.__sedol_code = sedol_code
-        self.__units_held = units_held
-        self.__price_pence = price_pence
-        self.__value_gbp = value_gbp
-        self.__cost_gbp = cost_gbp
-        self.__gain_loss_gbp = gain_loss_gbp
-        self.__gain_loss_percentage = gain_loss_percentage
+        self._stock_ticker = stock_ticker
+        self._security_name = security_name
+        self._sedol_code = sedol_code
+        self._units_held = units_held
+        self._price_pence = price_pence
+        self._value_gbp = value_gbp
+        self._cost_gbp = cost_gbp
+        self._gain_loss_gbp = gain_loss_gbp
+        self._gain_loss_percentage = gain_loss_percentage
 
     @property
     def stock_ticker(self):
-        return self.__stock_ticker
+        return self._stock_ticker
 
     @property
     def security_name(self):
-        return self.__security_name
+        return self._security_name
 
     @property
     def sedol_code(self):
-        return self.__sedol_code
+        return self._sedol_code
 
     @property
     def units_held(self):
-        return self.__units_held
+        return self._units_held
 
     @property
     def price_pence(self):
-        return self.__price_pence
+        return self._price_pence
 
     @property
     def value_gbp(self):
-        return self.__value_gbp
+        return self._value_gbp
 
     @property
     def cost_gbp(self):
-        return self.__cost_gbp
+        return self._cost_gbp
 
     @property
     def gain_loss_gbp(self):
-        return self.__gain_loss_gbp
+        return self._gain_loss_gbp
 
     @property
     def gain_loss_percentage(self):
-        return self.__gain_loss_percentage
+        return self._gain_loss_percentage
 
 
 class AccountDetail:

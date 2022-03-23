@@ -14,11 +14,11 @@ class InvestmentCategoryTypes:
 
 
 class SearchResult:
-    __stock_ticker: str
-    __security_name: str
-    __sedol_code: str
-    __internet_allowed: bool
-    __category: str
+    _stock_ticker: str
+    _security_name: str
+    _sedol_code: str
+    _internet_allowed: bool
+    _category: str
 
     def __init__(self, stock_ticker: str, security_name: str, sedol_code: str, internet_allowed: bool,
                  category: str):
@@ -29,32 +29,32 @@ class SearchResult:
         :param internet_allowed: bool - whether it can be traded online
         :param category: str - The category of the investment
         """
-        self.__stock_ticker = stock_ticker
-        self.__security_name = security_name
-        self.__sedol_code = sedol_code
-        self.__internet_allowed = internet_allowed
-        self.__category = category
+        self._stock_ticker = stock_ticker
+        self._security_name = security_name
+        self._sedol_code = sedol_code
+        self._internet_allowed = internet_allowed
+        self._category = category
 
     @property
     def stock_ticker(self):
-        return self.__stock_ticker
+        return self._stock_ticker
 
     @property
     def security_name(self):
-        return self.__security_name
+        return self._security_name
 
     @property
     def sedol_code(self):
-        return self.__sedol_code
+        return self._sedol_code
 
     @property
     def internet_allowed(self):
-        return self.__internet_allowed
+        return self._internet_allowed
 
     @property
     def category(self):
-        return self.__category
+        return self._category
 
     def __str__(self):
-        return f"""SearchResult[stock_ticker={self.__stock_ticker}, security_name={self.__security_name},
-        sedol_code={self.__sedol_code}, internet_allowed={self.__internet_allowed}, category={self.__category}]"""
+        return f"""SearchResult[stock_ticker={self._stock_ticker}, security_name={self._security_name},
+        sedol_code={self._sedol_code}, internet_allowed={self._internet_allowed}, category={self._category}]"""

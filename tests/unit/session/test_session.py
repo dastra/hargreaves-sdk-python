@@ -33,5 +33,3 @@ def test_session_keepalive():
 
         client = SessionClient(logger, web_session, time_service)
         client.session_keepalive(sedol_code, session_hl_vt)
-
-

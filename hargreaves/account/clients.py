@@ -7,28 +7,30 @@ from hargreaves.web.session import IWebSession
 
 
 class AccountClient:
-    __logger: Logger
-    __web_session: IWebSession
+    _logger: Logger
+    _web_session: IWebSession
 
     def __init__(self,
                  logger: Logger,
                  web_session: IWebSession
                  ):
-        self.__logger = logger
-        self.__web_session = web_session
+        self._logger = logger
+        self._web_session = web_session
 
     def get_account_summary(self) -> List[AccountSummary]:
-        response = self.__web_session.get('https://online.hl.co.uk/my-accounts')
+        self._logger.debug("Get account summary ...")
+        response = self._web_session.get('https://online.hl.co.uk/my-accounts')
         return parse_account_list(response.text)
 
     def get_account_detail(self, account_summary: AccountSummary) -> AccountDetail:
         account_id = account_summary.account_id
-        self.__logger.debug(f"Fetching the account detail page for account '{account_id}' ...")
-        account_detail_html = self.__web_session.get(
+        self._logger.debug(f"Get account ({account_id}) detail page ...")
+
+        account_detail_html = self._web_session.get(
             f"https://online.hl.co.uk/my-accounts/account_summary/account/{account_summary.account_id}").text
 
-        self.__logger.debug(f"Fetching the account detail CSV for account '{account_id}' ...")
-        csv_response = self.__web_session.get(
+        self._logger.debug(f"Get account ({account_id}) detail CSV ...")
+        csv_response = self._web_session.get(
             'https://online.hl.co.uk/my-accounts/account_summary_csv/sort/stock/sortdir/asc')
 
         csv_response.encoding = 'utf-8'  # avoids the 'DEBUG:chardet.charsetprobe' messages from csv reader

@@ -10,12 +10,12 @@ from hargreaves.web.session import IWebSession
 
 
 class MockWebSession(IWebSession):
-    __session: Session
-    __mock_request: Mocker
+    _session: Session
+    _mock_request: Mocker
 
     def __init__(self):
-        self.__session = requests.Session()
-        self.__mock_request = Mocker()
+        self._session = requests.Session()
+        self._mock_request = Mocker()
 
     def mock_get(self, url: str, status_code: int, params=None, headers=None, response_text=None):
         params = params if params is not None else {}
@@ -24,41 +24,41 @@ class MockWebSession(IWebSession):
             request_url = url
         else:
             request_url = f"{url}?{urlencode(params)}"
-        self.__mock_request.get(
+        self._mock_request.get(
                 url=request_url,
                 headers=headers,
                 status_code=status_code,
                 text=response_text
             )
-        return self.__mock_request
+        return self._mock_request
 
     def mock_post(self, url: str, status_code: int, headers=None, response_text=None):
         # data = data if data is not None else {}
         headers = headers if headers is not None else {}
         # self.__mock_request.add_matcher()
-        self.__mock_request.post(
+        self._mock_request.post(
                 url,
                 headers=headers,
                 status_code=status_code,
                 text=response_text
             )
-        return self.__mock_request
+        return self._mock_request
 
     def get(self, url: str, request_type: WebRequestType = WebRequestType.Document,
             params=None, headers=None) -> Response:
-        return self.__session.get(url, params=params, headers=headers)
+        return self._session.get(url, params=params, headers=headers)
 
     def post(self, url: str, request_type: WebRequestType = WebRequestType.Document,
              data=None, headers=None) -> Response:
-        return self.__session.post(url, data=data, headers=headers)
+        return self._session.post(url, data=data, headers=headers)
 
     def __enter__(self):
-        self.__mock_request.__enter__()
+        self._mock_request.__enter__()
         return self
 
     def __exit__(self, type, value, traceback):
-        self.__mock_request.__exit__(type, value, traceback)
+        self._mock_request.__exit__(type, value, traceback)
 
     @property
     def cookies(self) -> CookieJar:
-        return self.__session.cookies
+        return self._session.cookies

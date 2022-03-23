@@ -9,10 +9,10 @@ from hargreaves.web.session import HttpRequestEntry
 
 
 class HARHttpRequestEntryRenderer:
-    __logger: Logger
+    _logger: Logger
 
     def __init__(self, logger: Logger):
-        self.__logger = logger
+        self._logger = logger
 
     def safe_text_filter(self, txt_input: str):
         """Custom filter"""
@@ -32,7 +32,7 @@ class HARHttpRequestEntryRenderer:
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
         env.filters['safe_text'] = self.safe_text_filter
         template = env.get_template(template_name)
-        self.__logger.debug(f'render HAR with template "{template.name}"')
+        self._logger.debug(f'render HAR with template "{template.name}"')
 
         py = template.render(
             http_entries=http_entries
@@ -42,10 +42,10 @@ class HARHttpRequestEntryRenderer:
 
 
 class HAR2MarkdownRenderer:
-    __logger: Logger
+    _logger: Logger
 
     def __init__(self, logger: Logger):
-        self.__logger = logger
+        self._logger = logger
 
     def safe_text_filter(self, txt_input: str):
         """Custom filter"""
@@ -65,7 +65,7 @@ class HAR2MarkdownRenderer:
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
         env.filters['safe_text'] = self.safe_text_filter
         template = env.get_template(template_name)
-        self.__logger.debug(f'render HAR with template "{template.name}"')
+        self._logger.debug(f'render HAR with template "{template.name}"')
 
         output_txt = template.render(
             http_entries=http_entries

@@ -41,13 +41,13 @@ def parse_account_detail(account_detail_html: str, account_detail_csv: str, acco
         for row in reader:
             if len(row) >= 2:
                 if row[0] == 'Stock value:':
-                    stock_value = __to_float(row[1])
+                    stock_value = _to_float(row[1])
                 elif row[0] == 'Total cash:':
-                    total_cash = __to_float(row[1])
+                    total_cash = _to_float(row[1])
                 elif row[0] == 'Amount available to invest:':
-                    amount_available = __to_float(row[1])
+                    amount_available = _to_float(row[1])
                 elif row[0] == 'Total value:':
-                    total_value = __to_float(row[1])
+                    total_value = _to_float(row[1])
                 elif row[0] == 'Code':
                     in_holdings = True
                 elif in_holdings and row[0] == '' and row[1] == 'Totals':
@@ -66,10 +66,10 @@ def parse_account_detail(account_detail_html: str, account_detail_csv: str, acco
                                          "with error {}".format(row[0], e))
 
                     investments.append(Investment(stock_ticker=row[0], security_name=row[1], sedol_code=sedol,
-                                                  units_held=__to_float(row[2]), price_pence=__to_float(row[3]),
-                                                  value_gbp=__to_float(row[4]), cost_gbp=__to_float(row[5]),
-                                                  gain_loss_gbp=__to_float(row[6]),
-                                                  gain_loss_percentage=__to_float(row[7])))
+                                                  units_held=_to_float(row[2]), price_pence=_to_float(row[3]),
+                                                  value_gbp=_to_float(row[4]), cost_gbp=_to_float(row[5]),
+                                                  gain_loss_gbp=_to_float(row[6]),
+                                                  gain_loss_percentage=_to_float(row[7])))
 
     except csv.Error as e:
         raise ValueError("Could not parse CSV file line {}: {}".format(reader.line_num, e))
@@ -80,5 +80,5 @@ def parse_account_detail(account_detail_html: str, account_detail_csv: str, acco
                          )
 
 
-def __to_float(cell: str):
+def _to_float(cell: str):
     return float(cell.replace(',', ''))

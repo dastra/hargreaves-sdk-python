@@ -28,9 +28,9 @@ def test_post_username_dob():
 
     with MockWebSession() as web_session:
         expected_params = {
-             "hl_vt": HL_VT,
-             "username": "test",
-             "date-of-birth": "010204"
+            "hl_vt": HL_VT,
+            "username": "test",
+            "date-of-birth": "010204"
         }
 
         mock = web_session.mock_post(
@@ -43,6 +43,7 @@ def test_post_username_dob():
 
         assert urlencode(expected_params) == actual_param
         assert type(actual_response) == Response
+
 
 def __get_config():
     return ApiConfiguration('test', 'password', '010204', '567890')

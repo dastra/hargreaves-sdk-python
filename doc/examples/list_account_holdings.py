@@ -24,7 +24,8 @@ if __name__ == '__main__':
             print(f'Your {account_detail.account_type} is worth {account_detail.total_value} with the following '
                   f'holdings:')
             for investment in account_detail.investments:
-                print(f'\tYou hold {investment.units_held} units of {investment.security_name} worth {investment.value_gbp}')
+                print(f'\tYou hold {investment.units_held} units of {investment.security_name} '
+                      f'worth {investment.value_gbp}')
 
     except Exception as ex:
         logger.error(ex)

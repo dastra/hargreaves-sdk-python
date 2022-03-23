@@ -5,7 +5,8 @@ from pathlib import Path
 from hargreaves.account import AccountType
 from hargreaves.config.loader import ConfigLoader
 from hargreaves.journey.clients import WebSessionManagerFactory
-from hargreaves.trade.models import OrderPositionType, DealRequest
+from hargreaves.trade.models import OrderPositionType
+from hargreaves.trade.smart.models import DealRequest
 from hargreaves.utils.logging import LoggerFactory
 
 if __name__ == '__main__':
@@ -17,7 +18,7 @@ if __name__ == '__main__':
     # UK
     stock_ticker = 'PDG'
     position_type = OrderPositionType.Sell
-    position_percentage = 50.00
+    position_percentage = 100.00
     allow_fill_or_kill = True
 
     # US

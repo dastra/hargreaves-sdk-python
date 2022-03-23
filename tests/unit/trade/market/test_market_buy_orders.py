@@ -3,12 +3,14 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from hargreaves.search.models import InvestmentCategoryTypes
+from hargreaves.session.clients import MockSessionClient
 from hargreaves.trade.market.clients import MarketOrderClient
 from hargreaves.trade.market.models import MarketOrderQuote, MarketOrderConfirmation
 from hargreaves.trade.market.parsers import parse_market_order_quote_page, \
     parse_market_order_confirmation_page
 from hargreaves.utils.input import InputHelper
 from hargreaves.utils.logging import LoggerFactory
+from hargreaves.utils.timings import MockTimeService
 from hargreaves.web.mocks import MockWebSession
 
 
@@ -88,18 +90,18 @@ def test_parse_market_buy_order_confirmation_us_equity():
                                                               category_code=InvestmentCategoryTypes.OVERSEAS)
 
     assert order_confirmation.sedol_code == 'BDBFK59'
-    assert order_confirmation.number_of_shares == 500
-    assert order_confirmation.price == '£1.5202'
-    assert order_confirmation.share_value == 760.1
+    assert order_confirmation.number_of_shares == 1450
+    assert order_confirmation.price == '£1.4762'
+    assert order_confirmation.share_value == 2140.49
     assert order_confirmation.ptm_levy is None
     assert order_confirmation.commission == 5.95
     assert order_confirmation.stamp_duty is None
     assert order_confirmation.settlement_date is None
-    assert order_confirmation.total_trade_value == 773.65
-    assert order_confirmation.exchange_rate == 0.7601
-    assert order_confirmation.conversion_price == 1.5202
-    assert order_confirmation.conversion_sub_total == 760.10
-    assert order_confirmation.fx_charge == 7.60
+    assert order_confirmation.total_trade_value == 2.0
+    assert order_confirmation.exchange_rate == 0.757
+    assert order_confirmation.conversion_price == 1.4762
+    assert order_confirmation.conversion_sub_total == 140.49
+    assert order_confirmation.fx_charge == 21.4
 
 
 def test_execute_market_buy_order_confirmation_uk_equity():
@@ -140,12 +142,16 @@ def test_execute_market_buy_order_confirmation_uk_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        client = MarketOrderClient(logger, web_session)
+        time_service = MockTimeService()
+        session_client = MockSessionClient()
+        client = MarketOrderClient(logger, time_service, web_session, session_client)
+
         order_confirmation = client.execute_order(market_order_quote=market_order_quote)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
         assert type(order_confirmation) == MarketOrderConfirmation
+        assert session_client.was_called is True
 
 
 def test_execute_market_buy_order_confirmation_us_equity():
@@ -156,18 +162,18 @@ def test_execute_market_buy_order_confirmation_us_equity():
         session_hl_vt='1717986023',
         hl_vt='3806305716',
         sedol_code='BDBFK59',
-        number_of_shares=1.0,
-        price='$1.85',
+        number_of_shares=1450,
+        price='$1.93',
         share_value=None,
         ptm_levy=None,
         commission=5.95,
         stamp_duty=None,
-        settlement_date=InputHelper.parse_date('18/03/2022'),
+        settlement_date=InputHelper.parse_date('23/03/2022'),
         total_trade_value=7.37,
-        exchange_rate=0.7639,
+        exchange_rate=0.757,
         conversion_price=1.4132,
-        conversion_sub_total=1.41,
-        fx_charge=0.01,
+        conversion_sub_total=2140.49,
+        fx_charge=21.40,
         category_code=InvestmentCategoryTypes.OVERSEAS
     )
 
@@ -186,9 +192,13 @@ def test_execute_market_buy_order_confirmation_us_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        client = MarketOrderClient(logger, web_session)
+        time_service = MockTimeService()
+        session_client = MockSessionClient()
+        client = MarketOrderClient(logger, time_service, web_session, session_client)
+
         order_confirmation = client.execute_order(market_order_quote=market_order_quote)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
         assert type(order_confirmation) == MarketOrderConfirmation
+        assert session_client.was_called is True

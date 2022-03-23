@@ -3,7 +3,7 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from hargreaves.trade.market.errors import MarketClosedError, MarketOrderFailedError
+from hargreaves.trade.market.errors import MarketClosedError, MarketOrderFailedError, MarketOrderLiveQuoteError
 from hargreaves.trade.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrderConfirmation
 from hargreaves.utils.input import InputHelper
 
@@ -115,11 +115,16 @@ def parse_market_order_confirmation_page(confirm_html: str, category_code: str) 
 
     qc = soup.find("div", id="quote_content")
     if qc is None:
-        err = soup.select_one('div#content-body-full > div > div.dialog_content')
+        err = soup.select_one('div.dialog_content')
         if err is None:
             raise MarketOrderFailedError("Unexpected Error, see HTML for more details", confirm_html)
         else:
-            raise MarketOrderFailedError(err.get_text(strip=True), confirm_html)
+            error_text = err.get_text(separator=' ', strip=True)
+
+            if 'Unable to retrieve a live quote' in error_text:
+                raise MarketOrderLiveQuoteError(error_text, confirm_html)
+            else:
+                raise MarketOrderFailedError(error_text, confirm_html)
 
     vals = {
         'sedol_code': qc.get('data-trade-sedol'),

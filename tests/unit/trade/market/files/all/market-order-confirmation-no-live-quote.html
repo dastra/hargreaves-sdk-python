@@ -22,7 +22,7 @@
     </script>
     <script src="//cdn.appdynamics.com/adrum/adrum-21.4.0.3405.js"></script>
 
-    <title>Overseas equity deal confirmation | Portfolio overview | My accounts & dealing | Hargreaves Lansdown</title>
+    <title>Confirm overseas equity deal | Portfolio overview | My accounts & dealing | Hargreaves Lansdown</title>
     <meta content="" name="Description"/>
     <meta content="Hargreaves,Lansdown" name="Keywords"/>
     <meta content="noindex, nofollow" name="robots" />
@@ -201,7 +201,7 @@ if (document.cookie.indexOf(window.consentCookieName) === -1 || document.cookie.
         var TRADING_SITE_URL = 'online.hl.co.uk';
         var EXTERNAL_CMS_URL = proto + 'www.hl.co.uk';
         var EXTERNAL_CMS_SEARCH_URL = 'https://hlsearch.hl.co.uk';
-        var security_token = '2019237298';
+        var security_token = '4102816489';
         //]]>
     </script>
 
@@ -230,7 +230,7 @@ if (document.cookie.indexOf(window.consentCookieName) === -1 || document.cookie.
 
 
 </head>
-<body  class="browser-chr browser-chr-99" >
+<body  class="browser-ffox browser-ffox-97" >
 <!-- CONTAINER -->
 <!-- HEADER -->
 
@@ -1543,7 +1543,7 @@ if (document.cookie.indexOf(window.consentCookieName) === -1 || document.cookie.
     <!-- END HEADER NAVIGATION -->
     <div id="breadcrumbs">
 
-        <div class="breadcrumb-client">Client number: <strong>0000000</strong>&nbsp;| Last log in: <strong>23/03/2022 15:18</strong></div>	<div class="breadcrumb-left-col">
+        <div class="breadcrumb-client">Client number: <strong>000000</strong>&nbsp;| Last log in: <strong>23/03/2022 12:28</strong></div>	<div class="breadcrumb-left-col">
 
         <div class="you-are-here">You are here:</div>
 
@@ -1580,7 +1580,7 @@ if (document.cookie.indexOf(window.consentCookieName) === -1 || document.cookie.
 
 
 
-                <li id="bc-mod-title">Overseas&nbsp;equity&nbsp;deal&nbsp;confirmation</li>
+                <li id="bc-mod-title">Confirm&nbsp;overseas&nbsp;equity&nbsp;deal</li>
 
 
             </ul>
@@ -1602,100 +1602,346 @@ if (document.cookie.indexOf(window.consentCookieName) === -1 || document.cookie.
 
 
 
-                <div class="view-container">
-                    <div class="dialog_content deal_quote_confirmation">
 
-                        <div id="quote_content"
-                             data-trade-sedol="BDBFK59"
-                             data-trade-quantity="1450"
-                             data-trade-action="buy"
-                             data-trade-total-net="2,140.49"
-                             data-trade-total-gross="2,167.84"
-                             data-trade-commission="5.95"
-                        >
+                <link rel="stylesheet" type="text/css" href="/css/hl/security_deal.css">
 
-                            <div class="equity-confirmation-message">
-                                <div class="equity-confirmation-alert">
-                                    <h2>Your trade has been placed</h2>
-                                </div>
-                                <p>It will take a few minutes to update in your account.</p>
-                                <p>You'll receive trade confirmation in line with<br/>
-                                    your preferences when the trade details are ready to view.</p>
+
+                <div id="mcb-help"
+                     aria-hidden="true"
+                     class="hl-dropdown f-dropdown"
+                     data-dropdown-content>
+                    The suggested minimum cash balance helps ensure you have sufficient cash
+                    balance in your HL SIPP to meet fees. You can <a href="https://online.hl.co.uk/my-accounts/account-settings/cash">change or remove
+                    your minimum cash balance</a> within account settings. Your minimum cash balance
+                    is only a guide and your full cash balance will be included in any interest
+                    payment calculations.
+                </div>
+
+
+                <script>
+                    $(document).ready(function() {
+                        var frm = document.forms['frmAccountSelect'];
+
+                        $('#account').change(function() {
+                            window.location = frm.account[frm.account.selectedIndex].value;
+                        });
+                    });
+                </script>
+
+
+                <div class="account-switch-quick-search small-hide medium-hide wide-medium-hide">
+                    <div class="account-switch">
+
+
+                        <form method="get"
+                              name="frmAccountSelect"><input style="position: fixed!important; top: -100px!important;" tabindex="1000" type="text"/><input style="position: fixed!important; top: -100px!important;" tabindex="1000" type="password"/>
+                            <label for="account">Go to:</label>
+                            <select name="account"
+                                    id="account"
+                                    size="1"
+                                    title="Select account to view">
+                                <option value="https://online.hl.co.uk/my-accounts/portfolio_overview"
+                                >Select an account...
+                                </option>
+                                <option value="https://online.hl.co.uk/my-accounts/portfolio_overview"
+                                >
+                                    Portfolio overview
+                                </option>
+
+                                <option value="https://online.hl.co.uk/my-accounts/account_summary/account/70"
+                                        selected="selected">
+                                    SIPP
+                                </option>
+                                <option value="https://online.hl.co.uk/my-accounts/account_summary/account/73"
+                                >
+                                    SIPP PR
+                                </option>
+                                <option value="https://online.hl.co.uk/my-accounts/account_summary/account/98"
+                                >
+                                    Fund &amp; Share Account
+                                </option>
+
+                                <option value="https://online.hl.co.uk/my-accounts/loyalty_bonus"
+                                >
+                                    Loyalty Bonus
+                                </option>
+
+                            </select>
+                        </form>
+
+                    </div>
+
+                    <script src="/global/scr/ajax_functions.js"></script>
+                    <script src="/global/scr/ajax_queue.js"></script>
+
+
+                    <script>var w50_brand = true;</script>
+                    <script src="/global/scr/stocks_beta.js?v=1"></script>
+
+                    <script>
+                        // Set up some default parameters - result offset and links to other pages
+                        var chart_link	= 'https://online.hl.co.uk/my-accounts/security_details';
+                        var deal_link	= 'https://online.hl.co.uk/my-accounts/security_deal';
+                        var search_form = '#quick_stock_search_form';
+
+                        // Create search object
+                        var search = new Search();
+                        search.input = '#stock_search_input';
+                        search.form = 'form#quick_stock_search_form';
+
+                        $(document).ready(function() {
+                            search.new_search(0, 'box');
+                        });
+                    </script>
+
+
+                    <div class="quick-search">
+                        <form name="quick_stock_search_form"
+                              method="get"
+                              action="https://online.hl.co.uk/my-accounts/stock_and_fund_search"
+                              onsubmit="return check_not_empty('search_data');"><input style="position: fixed!important; top: -100px!important;" tabindex="1000" type="text"/><input style="position: fixed!important; top: -100px!important;" tabindex="1000" type="password"/>
+                            <div class="quick-stock-search">
+                                <input type="text"
+                                       maxlength="100"
+                                       name="stock_search_input"
+                                       id="stock_search_input"
+                                       autocomplete="off"
+                                       placeholder="Search investments"
+                                       title="Search investments">
+
+                                <button id="search_button"
+                                        title="Search investments"></button>
                             </div>
 
-                            <h3>Mammoth Energy Services Inc (TUSK)<br/>
-                                <span class="subheading">USD0.01</span>
-                            </h3>
-                            <p>
-                <span class="label-bold deal_text_lg">
-                    1450
-                </span>
-                                <span class="deal_text_md">shares</span>
-                                <span class="label-bold deal_text_lg" style="text-transform:lowercase;">
-                    bought
-                </span>
-                                <span class="deal_text_md">at</span>
-                                <span class="label-bold deal_text_lg">
-                    &pound;1.4762
-                </span>
-                            </p>
+                            <div class="stock-search-box" id="stock_list0"></div>
+
+                            <a href="https://online.hl.co.uk/my-accounts/stock_and_fund_search"
+                               title="New stock &amp; fund search">
+                                <strong>Advanced search</strong>
+                            </a>
+
+                        </form>
+                    </div>
+                </div>
 
 
-                            <table class="table-deal align-margin spacer-bottom deal_table" summary="Live quote">
-                                <tbody>
-
-                                <tr class="odd">
-                                    <td class="text-right borderright">
-                                        <span class="label-bold">Exchange rate</span>
-                                    </td>
-                                    <td class='vertical_middle'>0.757</td>
-                                </tr>
-
-                                <tr class="even">
-                                    <td class="text-right borderright">
-                                        <span class="label-bold">Price</span>
-                                    </td>
-                                    <td>&pound;1.4762</td>
-                                </tr>
-
-                                <tr class="odd">
-                                    <td class="text-right borderright">
-                                        <span class="label-bold">Sub total</span>
-                                    </td>
-                                    <td>&pound;2,140.49</td>
-                                </tr>
-
-                                <tr class="even">
-                                    <td class="text-right borderright">
-                                        <span class="label-bold">Commission</span>
-                                    </td>
-                                    <td>&pound;5.95</td>
-                                </tr>
-
-                                <tr class="odd">
-                                    <td class="text-right borderright"><span class="label-bold">FX charge</span></td>
-                                    <td>&pound;21.40</td>
-                                </tr>
+                <h1 style="padding-bottom:0!important;">HL SIPP</h1>
 
 
-                                <tr class="even">
-                                    <td class="text-right borderright align_bottom">
-                                        <span class="label-bold total_value_trade">Total value of trade:</span>
-                                    </td>
-                                    <td>
-                                        <strong>
-                                            <span class="deal_text_lg text-enlarge1a">&pound;2,167.84</span>
-                                        </strong>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
 
 
-                            <div class="btns_div quote_accepted_btn action-buttons">
-                                <div style="display:inline-block;">
-                                    <a href="https://online.hl.co.uk/my-accounts/stock_and_fund_search/action/deal" class="secondary-button-small share_dealing_show_loader btn">Stock search</a>
-                                    <a href="https://online.hl.co.uk/my-accounts/account_summary" class="secondary-button-small indent create_limit_order_btn share_dealing_show_loader btn">Finish trading</a>
+                <div class="col2-box fLeft">
+
+                    <table  class="table-summary"
+                            summary="Current valuation of this account">
+
+                        <tfoot>
+
+                        <tr>
+                            <td>
+                                Total  value
+                            </td>
+
+                            <td                     class="aRight">
+                                &pound;1,504.37
+                            </td>
+                        </tr>
+
+                        </tfoot>
+
+                        <tbody>
+
+                        <tr>
+                            <td>
+                                Stock value
+                            </td>
+
+                            <td                     class="aRight">
+                                &pound;1,212.47
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Total cash
+                            </td>
+
+                            <td                     class="aRight">
+                                &pound;1,291.90
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                <div class="col2-box fRight">
+
+                    <table  class="table-summary"
+                            summary="Available funds on this account">
+
+
+                        <tfoot>
+                        <tr>
+                            <td>Balance</td>
+                            <td class="aRight">&pound;1,241.90</td>
+                        </tr>
+                        </tfoot>
+
+                        <tbody>
+                        <tr>
+                            <td><a  href="https://online.hl.co.uk/my-accounts/amount_available/account/70"
+                                    title="Amount available to invest"
+                                    class="link-headline">Amount available to invest</a></td>
+                            <td class="aRight">&pound;1,291.90</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a data-dropdown="mcb-help"
+                                   aria-controls="mcb-help"
+                                   aria-expanded="false"
+                                   data-options="is_hover:true"
+                                   class="dropdown-trigger">
+                                    Suggested
+
+                                    minimum cash balance
+                                </a>
+
+
+                            </td>
+                            <td class="aRight">
+                                &pound;50.00
+                            </td>
+                        </tr>
+                        </tbody>
+
+
+                    </table>
+                </div>
+
+                <br class="box-enclose" />
+
+                <script type="text/javascript" src="/group/scr/nav_account.js"></script>
+                <div class="tab-content account-list overview-height clearfix spacer-bottom-dbl spacer-top-dbl">
+                    <ul class="clearfix spacer-bottom"><li class="tab "><a href="https://online.hl.co.uk/my-accounts/account_summary/account/70" title="Stocks" class="one-line">STOCKS</a></li><li class="tab "><a href="https://online.hl.co.uk/my-accounts/cash/account/70" title="Cash" class="one-line">CASH</a></li><li class="tab "><a href="https://online.hl.co.uk/my-accounts/income_details/account/70" title="Income" class="one-line">Income</a></li><li class="tab"><a	href="https://online.hl.co.uk/my-accounts/pending_orders/account/70" title="Pending orders" class="">PENDING<br/> ORDERS </a></li><li class="tab"><a  href="https://online.hl.co.uk/my-accounts/manage_account/account/70" title="Account administration">ACCOUNT<br/> ADMINISTRATION</a></li><li class="tab"><a  href="https://online.hl.co.uk/my-accounts/transaction_history/account/70" title="Transaction history">TRANSACTION<br/> HISTORY</a></li><li class="tab"><a  href="https://online.hl.co.uk/my-accounts/regular-savings/account/70" title="Monthly savings">MONTHLY<br/> SAVINGS</a></li><li class="tab"><a href="https://online.hl.co.uk/my-accounts/vantage_application_sipp_topup/account/70" id="nav-add-money" title="Add money online">ADD<br/> MONEY</a></li><li class="tab " id="deal"><a href="https://online.hl.co.uk/my-accounts/stock_and_fund_search/action/deal" title="Place deal" class="place-deal-tab tab-border-top" style="width:10px;">DEAL <br/>NOW</a></li></ul><br class="box-enclose"/>
+
+                </div>
+                <div class="share_dealing">
+
+
+
+
+
+
+
+                    <h2 class="deal_text_enlarge share_dealing_stock_name">
+                        HIVE Blockchain Technologies Ltd
+                        (HIVE)
+                        <span class="subheading">
+        NPV
+                    (<a href="https://online.hl.co.uk/my-accounts/security_details/sedol/BYZ9816" target="_blank" class="deal_link">View Factsheet</a>)
+            </span>
+                    </h2>
+                    <div class="col80-box align-margin margin-bottom fullwidth pull-left">
+
+                        <h3 class="share_dealing_title positive" id="price-heading">
+
+                            <span class="price-label">Sell:&nbsp;</span><span class="bid price-divide text_lg" style="line-height:38px;width:auto;text-align:center; font-weight:bold;" >2.57 CAD</span><span class="text_lg">&nbsp;|&nbsp;</span><span class="price-label">Buy:&nbsp;</span><span class="ask price-divide text_lg" style="font-weight:bold;" >2.58 CAD</span><span class="text_lg">&nbsp;|&nbsp;</span><span><img id="stock_change_arrow" src="/img/hl/layout/security-up-arrow.gif" alt="up"/></span><span class="text_lg positive change" style="padding-right:0;margin-right:0;padding-left:0;margin-left:0.2em;background-image:none; font-weight:bold;" >0.02 CAD</span>&nbsp;<span class="positive change" style="font-size:1em;background:none;margin-left:0;padding-left:0; font-weight:bold;" >(0.78&#37;)</span>
+                        </h3>
+
+
+                        <p class="align-center text-left margin_none micro-font micro-padding-top">
+                            Prices delayed by at least 15 minutes
+                        </p>
+
+                        <div class="margin-top box info-box backwardation-msg-box backwardation dNone" id="backwardation">
+                            The selling price currently displayed is higher than the buying price. This can occur temporarily for a variety of reasons; shortly before the market opens, after the market closes or because of extraordinary price volatility during the trading day.	</div>
+
+                        <p class="align-center text-left margin_none">
+                            <strong class="margin-top pull-left fullwidth">
+                                This stock is quoted and traded in . When your deal is placed, the total value will be converted into sterling by the market maker we place your deal with. Please ensure you have <a href="https://www.hl.co.uk/__data/assets/pdf_file/0005/9674978/important-info-overseas-shares.pdf">read the important information about holding overseas shares</a> before you deal.
+                            </strong>
+                        </p>
+
+                    </div>
+
+
+                    <div class="clearfix tabs_content" id="tab21_content">
+
+                        <ul class="tabs clearfix">
+                            <li class="active">
+                                <a class="share_dealing_execute_trade_tab" id="#tab21">Deal now</a>
+                            </li>
+
+                        </ul>
+                        <div class="clearfix tabs_content grid_layout_12" id="tab21_content">
+                            <div class="market_closed_content col_8">
+
+
+                                <div class="view-container">
+                                    <div class="not_traded_dialog_content">
+                                        <div class="dialog_content">
+                                            <h3>Unable to retrieve a live quote</h3>
+
+
+                                            <p>
+                                                Unfortunately a live price is not available for your <strong>HIVE Blockchain Technologies Ltd NPV</strong> order. This
+                                                may be due to a number of factors including, but not limited to, the size of your order or current market volatility.
+                                            </p>
+
+                                            <p>You have two options:</p>
+
+                                            <ol>
+                                                <li>
+                                                    Press 're-quote' to try again.
+                                                </li>
+                                                <li>
+                                                    Leave a 'fill or kill' order for our dealers to place manually.
+                                                </li>
+                                            </ol>
+
+                                            <p>Alternatively, to abandon the deal, select 'Cancel'.</p>
+
+
+
+
+
+
+                                            <form name="requoteForm" method="post" action="https://online.hl.co.uk/my-accounts/confirm_equity_overseas" id="requote-form" style="margin:0" class="standard-display"><input style="position: fixed!important; top: -100px!important;" tabindex="1000" type="text"/><input style="position: fixed!important; top: -100px!important;" tabindex="1000" type="password"/>
+                                                <input type="hidden" name="hl_vt" value="1952506129"/>
+                                                <div class="deal-buttons btns_clear action-buttons">
+                                                    <input type="hidden" name="accept" value="1" />
+                                                    <input type="hidden" name="trdpassword" value="" />
+                                                    <input type="hidden" name="cont" value="1"/>
+                                                    <input type="hidden" name="product_no" value="70"/>
+                                                    <input type="hidden" name="sedol" value="BYZ9816"/>
+                                                    <input type="hidden" name="isin" value="CA43366H1001" />
+                                                    <input type="hidden" name="epic" value="" />
+                                                    <input type="hidden" name="bs" value="Buy"/>
+                                                    <input type="hidden" name="qs" value="value"/>
+                                                    <input type="hidden" name="quantity" value="50000.00"/>
+                                                    <input type="hidden" name="inc_chrgs" value="0"/>
+                                                    <input type="hidden" name="currency_code" value="CAD"/>
+                                                    <input type="hidden" name="exchange" value="CV"/>
+                                                    <input type="hidden" name="security_name" value="HIVE Blockchain Technologies Ltd"/>
+                                                    <input type="hidden" name="ticker" value="HIVE"/>
+
+                                                    <a class="quaternary-button-small pull_btn_left share_dealing_show_loader close_dialog" title="Cancel" >Cancel</a>
+                                                    <button class="secondary-button-small indent share_dealing_quote_expired pull_btn_left" name="submit" title="Re-quote" type="button">Re-quote</button>
+
+
+                                                    <a id="fill-kill-button" class="primary-button-small indent pull_btn_left share_dealing_show_loader"
+                                                       onclick="document.location.href='https://online.hl.co.uk/my-accounts/manual_order/oh/0/sedol/BYZ9816/product_no/70/quantity/50000.00/bs/Buy/qs/value/inc_charges_set/0';"
+                                                       title="Place a fill or kill order">Place a fill or kill order</a>
+                                                </div>
+                                            </form>
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -19,10 +19,10 @@ class Har2MdController:
                       'fundslibrary.co.uk,t.co,www.googletagmanager.com,ytimg.com,ajax/menus,lightstreamer,' \
                       'loginstatus,cms_services.php'
 
-    __logger: logging.Logger
+    _logger: logging.Logger
 
     def __init__(self, logger: logging.Logger):
-        self.__logger = logger
+        self._logger = logger
 
     def load_entries(self, file_path: str):
         har_txt = FileHelper.read_file_contents(file_path)
@@ -70,7 +70,7 @@ class Har2MdController:
             if response_content is not None:
                 FileHelper.write_file(str(content_file_path), response_content)
             elif entry['response']['content'].get('size') > 0:
-                self.__logger.warning(f"response content is missing for '{content_file_path}'")
+                self._logger.warning(f"response content is missing for '{content_file_path}'")
 
     def exec(self, input_file: str, output_folder: str, exclude_patterns: list):
 
@@ -80,25 +80,25 @@ class Har2MdController:
         content_folder = str(Path.joinpath(Path(output_folder), 'content'))
 
         if Path(output_folder).exists():
-            self.__logger.debug(f"Deleting folder ({output_folder}) ...")
+            self._logger.debug(f"Deleting folder ({output_folder}) ...")
             shutil.rmtree(output_folder)
 
-        self.__logger.debug(f"Creating folder ({output_folder} ...")
+        self._logger.debug(f"Creating folder ({output_folder} ...")
         os.makedirs(output_folder)
 
-        self.__logger.debug(f"Creating folder ({content_folder} ...")
+        self._logger.debug(f"Creating folder ({content_folder} ...")
         os.makedirs(content_folder)
 
         all_entries = self.load_entries(input_file)
         filtered_entries = self.filter_entries(all_entries, exclude_patterns)
         self.prepare(filtered_entries)
 
-        self.__logger.debug(f"Filtered {len(all_entries)} entries down to {len(filtered_entries)} ...")
+        self._logger.debug(f"Filtered {len(all_entries)} entries down to {len(filtered_entries)} ...")
 
-        self.__logger.debug(f"Creating content files ...")
+        self._logger.debug(f"Creating content files ...")
         self.create_content_files(content_folder, filtered_entries)
 
-        renderer = HAR2MarkdownRenderer(self.__logger)
+        renderer = HAR2MarkdownRenderer(self._logger)
         rendered_txt = renderer.rendering(http_entries=filtered_entries)
 
         md_output_file = Path.joinpath(Path(output_folder), 'output.md')

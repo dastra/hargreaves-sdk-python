@@ -2,37 +2,66 @@ import http
 from logging import Logger
 
 from hargreaves.search.models import InvestmentCategoryTypes
+from hargreaves.session.clients import ISessionClient
 from hargreaves.trade.manual.errors import ManualOrderFailedError
 from hargreaves.trade.manual.models import ManualOrder, ManualOrderPosition
 from hargreaves.trade.manual.parsers import parse_manual_order_confirmation_page, parse_manual_order_entry_page
+from hargreaves.utils.timings import ITimeService
 from hargreaves.web.session import IWebSession, WebRequestType
 
 
-class ManualOrderClient:
-    __logger: Logger
-    __web_session: IWebSession
+class IManualOrderClient:
+
+    def get_current_position(self, account_id: int, sedol_code: str, category_code: str) -> ManualOrderPosition:
+        pass
+
+    def submit_order(self, order: ManualOrder):
+        pass
+
+
+class ManualOrderClient(IManualOrderClient):
+    _logger: Logger
+    _time_service: ITimeService
+    _web_session: IWebSession
+    _session_client: ISessionClient
 
     def __init__(self,
                  logger: Logger,
-                 web_session: IWebSession
+                 time_service: ITimeService,
+                 web_session: IWebSession,
+                 session_client: ISessionClient
                  ):
-        self.__logger = logger
-        self.__web_session = web_session
+        self._logger = logger
+        self._time_service = time_service
+        self._web_session = web_session
+        self._session_client = session_client
 
     def get_current_position(self, account_id: int, sedol_code: str, category_code: str) -> ManualOrderPosition:
+
+        self._logger.debug("Get Current Position")
+
+        self._time_service.sleep()
 
         request_headers = {
             'Referer': f'https://online.hl.co.uk/my-accounts/security_deal/sedol/{sedol_code}'
         }
 
-        order_html = self.__web_session.get(url=f"https://online.hl.co.uk/my-accounts/manual_order/"
+        order_html = self._web_session.get(url=f"https://online.hl.co.uk/my-accounts/manual_order/"
                                                 f"sedol/{sedol_code}/product_no/{account_id}",
-                                            headers=request_headers).text
+                                           headers=request_headers).text
 
         current_position = parse_manual_order_entry_page(order_html, category_code)
         return current_position
 
     def submit_order(self, order: ManualOrder):
+
+        self._logger.debug(f"Submit Order ...")
+
+        self._time_service.sleep()
+
+        self._session_client.session_keepalive(sedol_code=order.sedol, session_hl_vt=order.hl_vt)
+
+        self._time_service.sleep()
 
         request_headers = {
             'Referer': f'https://online.hl.co.uk/my-accounts/security_deal/sedol/{order.sedol}'
@@ -45,9 +74,9 @@ class ManualOrderClient:
         else:
             request_url = 'https://online.hl.co.uk/my-accounts/manual_deal'
 
-        res = self.__web_session.post(request_url,
-                                      request_type=WebRequestType.XHR,
-                                      data=form, headers=request_headers)
+        res = self._web_session.post(request_url,
+                                     request_type=WebRequestType.XHR,
+                                     data=form, headers=request_headers)
 
         if res.status_code != http.HTTPStatus.OK:
             raise ManualOrderFailedError(f"Purchase invalid, HTTP response code was {res.status_code}")

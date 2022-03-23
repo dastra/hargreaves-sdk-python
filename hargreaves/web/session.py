@@ -1,5 +1,6 @@
 import copy
 from datetime import datetime
+from http.client import RemoteDisconnected
 from http.cookiejar import CookieJar
 from logging import Logger
 
@@ -27,33 +28,37 @@ class IWebSession():
 
 
 class WebSession(IWebSession):
-    __logger: Logger
-    __session: requests.Session
-    __request_session_context: RequestSessionContext
-    __header_factory: IHeaderFactory
+    _logger: Logger
+    _session: requests.Session
+    _request_session_context: RequestSessionContext
+    _header_factory: IHeaderFactory
 
     def __init__(self,
                  logger: Logger,
                  session: requests.Session,
                  request_session_context: RequestSessionContext,
                  header_factory: IHeaderFactory):
-        self.__logger = logger
-        self.__session = session
-        self.__request_session_context = request_session_context
-        self.__header_factory = header_factory
+        self._logger = logger
+        self._session = session
+        self._request_session_context = request_session_context
+        self._header_factory = header_factory
 
     @property
     def cookies(self) -> CookieJar:
-        return self.__session.cookies
+        return self._session.cookies
 
     def __exec_request(self, request: requests.Request):
-        session = self.__session
+        session = self._session
         request_cookies = copy.deepcopy(session.cookies)
 
         prepared_req = session.prepare_request(request)
 
         start_time = datetime.now()
-        response = session.send(prepared_req, stream=True)
+        try:
+            response = session.send(prepared_req, stream=True)
+        except RemoteDisconnected:
+            self._logger.warning("RemoteDisconnected error, let's retry ...")
+            response = session.send(prepared_req, stream=True)
 
         socket = response.raw.connection.sock
 
@@ -73,35 +78,35 @@ class WebSession(IWebSession):
         for history_response in response.history:
             arguments['response'] = history_response
 
-            self.__request_session_context.append(HttpRequestEntry(**arguments))
+            self._request_session_context.append(HttpRequestEntry(**arguments))
 
         arguments['response'] = response
 
-        self.__request_session_context.append(HttpRequestEntry(**arguments))
+        self._request_session_context.append(HttpRequestEntry(**arguments))
 
         return response
 
     def get(self, url: str, request_type: WebRequestType = WebRequestType.Document,
             params=None, headers=None) -> Response:
-        self.__logger.debug(f"GET: {url}")
+        self._logger.debug(f"GET: {url}")
         additional_headers = headers if headers is not None else {}
 
         if request_type == WebRequestType.XHR:
-            merged_headers = self.__header_factory.create_for_xhr_get(url, additional_headers)
+            merged_headers = self._header_factory.create_for_xhr_get(url, additional_headers)
         else:
-            merged_headers = self.__header_factory.create_for_doc_get(url, additional_headers)
+            merged_headers = self._header_factory.create_for_doc_get(url, additional_headers)
 
         req = Request(method='GET', url=url, params=params, headers=merged_headers)
         return self.__exec_request(req)
 
     def post(self, url: str, request_type: WebRequestType = WebRequestType.Document,
              data=None, headers=None) -> Response:
-        self.__logger.debug(f"POST: {url}")
+        self._logger.debug(f"POST: {url}")
         additional_headers = headers if headers is not None else {}
         if request_type == WebRequestType.XHR:
-            merged_headers = self.__header_factory.create_for_xhr_post(url, additional_headers, data)
+            merged_headers = self._header_factory.create_for_xhr_post(url, additional_headers, data)
         else:
-            merged_headers = self.__header_factory.create_for_form_post(url, additional_headers, data)
+            merged_headers = self._header_factory.create_for_form_post(url, additional_headers, data)
 
         req = Request(method='POST', url=url, data=data, headers=merged_headers)
         return self.__exec_request(req)

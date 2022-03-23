@@ -18,7 +18,7 @@ class InputHelper:
         else:
             if input_txt in empty_values:
                 return default_empty
-        return float(input_txt)
+        return float(input_txt.replace(',', ''))
 
     @staticmethod
     def parse_bool(input_txt: str) -> bool:

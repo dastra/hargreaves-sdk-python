@@ -9,47 +9,47 @@ from hargreaves.web.session import IWebSession, WebRequestType
 
 
 class AuthenticationClient:
-    __logger: Logger
-    __time_service: ITimeService
-    __web_session: IWebSession
+    _logger: Logger
+    _time_service: ITimeService
+    _web_session: IWebSession
 
     def __init__(self,
                  logger: Logger,
                  time_service: ITimeService,
                  web_session: IWebSession
                  ):
-        self.__logger = logger
-        self.__time_service = time_service
-        self.__web_session = web_session
+        self._logger = logger
+        self._time_service = time_service
+        self._web_session = web_session
 
     def login(self, config: ApiConfiguration, redirect_response: Response = None):
         if redirect_response is not None:
-            self.__logger.debug(f"STEP-1: Parse 'Security Token'")
+            self._logger.debug(f"STEP-1: Parse 'Security Token'")
             hl_vt = parse_security_token(redirect_response.text)
         else:
-            self.__logger.debug("STEP-1: Get Security Token...")
-            hl_vt = get_security_token(self.__web_session)
+            self._logger.debug("STEP-1: Get Security Token...")
+            hl_vt = get_security_token(self._web_session)
 
-        self.__time_service.sleep(min=1, max=3)
-        self.__logger.debug(f"STEP-1: Posting username & dob (Security Token = {hl_vt})...")
-        step1_response = post_username_dob(self.__web_session, hl_vt, config)
-        self.__logger.debug(f"STEP-1:Parsing secure numbers...")
+        self._time_service.sleep(min=1, max=3)
+        self._logger.debug(f"STEP-1: Posting username & dob (Security Token = {hl_vt})...")
+        step1_response = post_username_dob(self._web_session, hl_vt, config)
+        self._logger.debug(f"STEP-1:Parsing secure numbers...")
         secure_numbers_requested = parse_secure_numbers(step1_response.text)
 
-        self.__time_service.sleep(min=1, max=3)
-        self.__logger.debug(f"STEP-2: Posting Password & Secure Numbers ({secure_numbers_requested})...")
-        step2_response = post_secure_numbers(self.__web_session, hl_vt, config, secure_numbers_requested)
-        self.__logger.debug(f"STEP-2: OK, response url = {step2_response.url}...")
+        self._time_service.sleep(min=1, max=3)
+        self._logger.debug(f"STEP-2: Posting Password & Secure Numbers ({secure_numbers_requested})...")
+        step2_response = post_secure_numbers(self._web_session, hl_vt, config, secure_numbers_requested)
+        self._logger.debug(f"STEP-2: OK, response url = {step2_response.url}...")
 
-        self.__logger.debug(f"Set Logged-In Cookies...")
-        HLCookieHelper.set_logged_in_cookies(self.__web_session.cookies)
+        self._logger.debug(f"Set Logged-In Cookies...")
+        HLCookieHelper.set_logged_in_cookies(self._web_session.cookies)
 
     def logout(self):
-        self.__logger.debug(f"Logging out ...")
-        response = self.__web_session.get("https://online.hl.co.uk/my-accounts/logout")
+        self._logger.debug(f"Logging out ...")
+        response = self._web_session.get("https://online.hl.co.uk/my-accounts/logout")
         if response.status_code != http.HTTPStatus.OK:
             raise ConnectionError(f"Unexpected logout response code ('{response.status_code}')")
-        self.__web_session.cookies.clear()
+        self._web_session.cookies.clear()
 
 
 class LoggedInSession(IWebSession):

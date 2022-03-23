@@ -46,21 +46,21 @@ class HeaderFactory(IHeaderFactory):
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36'
     ]
 
-    __user_agent: str
-    __request_session_context: RequestSessionContext
+    _user_agent: str
+    _request_session_context: RequestSessionContext
 
     def __init__(self, request_session_context: RequestSessionContext, user_agent: str):
-        self.__request_session_context = request_session_context
-        self.__user_agent = user_agent
+        self._request_session_context = request_session_context
+        self._user_agent = user_agent
 
     def create_for_doc_get(self, url: str, additional_headers: dict) -> dict:
         default_headers = {
             'Host': UrlHelper.get_host(url),
-            'User-Agent': self.__user_agent,
+            'User-Agent': self._user_agent,
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
             'Accept-Language': HeaderFactory.ACCEPT_LANGUAGE,
             'Accept-Encoding': HeaderFactory.ACCEPT_ENCODING,
-            'Referer': self.__request_session_context.get_last_referer(),
+            'Referer': self._request_session_context.get_last_referer(),
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
             'Sec-Fetch-Dest': 'document',
@@ -76,11 +76,11 @@ class HeaderFactory(IHeaderFactory):
     def create_for_xhr_get(self, url: str, additional_headers: dict) -> dict:
         default_headers = {
             'Host': UrlHelper.get_host(url),
-            'User-Agent': self.__user_agent,
+            'User-Agent': self._user_agent,
             'Accept': 'text/javascript, application/javascript, */*',
             'Accept-Language': HeaderFactory.ACCEPT_LANGUAGE,
             'Accept-Encoding': HeaderFactory.ACCEPT_ENCODING,
-            'Referer': self.__request_session_context.get_last_referer(),
+            'Referer': self._request_session_context.get_last_referer(),
             'Content-Type': 'application/x-www-form-urlencoded',
             'Connection': 'keep-alive',
             'Sec-Fetch-Dest': 'empty',
@@ -97,11 +97,11 @@ class HeaderFactory(IHeaderFactory):
 
         default_headers = {
             'Host': UrlHelper.get_host(url),
-            'User-Agent': self.__user_agent,
+            'User-Agent': self._user_agent,
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
             'Accept-Language': HeaderFactory.ACCEPT_LANGUAGE,
             'Accept-Encoding': HeaderFactory.ACCEPT_ENCODING,
-            'Referer': self.__request_session_context.get_last_referer(),
+            'Referer': self._request_session_context.get_last_referer(),
             'Content-Type': 'application/x-www-form-urlencoded',
             'Content-Length': str(len(urlencode(data))),
             'Origin': UrlHelper.get_origin(url),
@@ -121,11 +121,11 @@ class HeaderFactory(IHeaderFactory):
 
         default_headers = {
             'Host': UrlHelper.get_host(url),
-            'User-Agent': self.__user_agent,
+            'User-Agent': self._user_agent,
             'Accept': '*/*',
             'Accept-Language': HeaderFactory.ACCEPT_LANGUAGE,
             'Accept-Encoding': HeaderFactory.ACCEPT_ENCODING,
-            'Referer': self.__request_session_context.get_last_referer(),
+            'Referer': self._request_session_context.get_last_referer(),
             'X-Requested-With': 'XMLHttpRequest',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Content-Length': str(len(urlencode(data))),

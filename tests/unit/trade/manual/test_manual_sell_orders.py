@@ -3,11 +3,13 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from hargreaves.search.models import InvestmentCategoryTypes
+from hargreaves.session.clients import MockSessionClient
 from hargreaves.trade.manual.clients import ManualOrderClient
 from hargreaves.trade.manual.models import ManualOrder, ManualOrderConfirmation, ManualOrderPosition
 from hargreaves.trade.manual.parsers import parse_manual_order_confirmation_page
 from hargreaves.trade.models import OrderPositionType, OrderAmountType
 from hargreaves.utils.logging import LoggerFactory
+from hargreaves.utils.timings import MockTimeService
 from hargreaves.web.mocks import MockWebSession
 
 
@@ -109,12 +111,16 @@ def test_submit_manual_sell_order_confirmation_uk_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        client = ManualOrderClient(logger, web_session)
+        time_service = MockTimeService()
+        session_client = MockSessionClient()
+        client = ManualOrderClient(logger, time_service, web_session, session_client)
+
         order_confirmation = client.submit_order(order=order)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
         assert type(order_confirmation) == ManualOrderConfirmation
+        assert session_client.was_called is True
 
 
 def test_submit_manual_sell_order_confirmation_us_equity():
@@ -185,9 +191,13 @@ def test_submit_manual_sell_order_confirmation_us_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        client = ManualOrderClient(logger, web_session)
+        time_service = MockTimeService()
+        session_client = MockSessionClient()
+        client = ManualOrderClient(logger, time_service, web_session, session_client)
+
         order_confirmation = client.submit_order(order=order)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
         assert type(order_confirmation) == ManualOrderConfirmation
+        assert session_client.was_called is True

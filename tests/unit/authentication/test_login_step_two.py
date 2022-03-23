@@ -29,7 +29,7 @@ def test_post_secure_numbers():
 
     with MockWebSession() as web_session:
 
-        expected_params={
+        expected_params = {
             "hl_vt": HL_VT,
             "online-password-verification": "password",
             "secure-number[1]": 5,

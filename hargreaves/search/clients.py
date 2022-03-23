@@ -7,22 +7,27 @@ from ..utils.timings import ITimeService
 
 
 class SecuritySearchClient:
-    __logger: Logger
-    __web_session: IWebSession
-    __time_service: ITimeService
+    _logger: Logger
+    _web_session: IWebSession
+    _time_service: ITimeService
 
     def __init__(self,
                  logger: Logger,
                  web_session: IWebSession,
                  time_service: ITimeService
                  ):
-        self.__logger = logger
-        self.__web_session = web_session
-        self.__time_service = time_service
+        self._logger = logger
+        self._web_session = web_session
+        self._time_service = time_service
 
     def investment_search(self, search_string: str, investment_types: list) -> [SearchResult]:
+
+        self._logger.debug("Searching Securities ...")
+
+        self._time_service.sleep()
+
         # pid is the time in milliseconds since the epoch
-        pid = self.__time_service.get_current_time_as_epoch_time()
+        pid = self._time_service.get_current_time_as_epoch_time()
         # the filters param is actually a list of investment types to be excluded,
         # so we need to reverse what was passed in.
         type_excl = []
@@ -34,7 +39,7 @@ class SecuritySearchClient:
             'Referer': 'https://online.hl.co.uk/my-accounts/stock_and_fund_search/action/deal'
         }
 
-        results_jsonp = self.__web_session.get(
+        results_jsonp = self._web_session.get(
             url=f'https://online.hl.co.uk/ajaxx/stocks.php',
             request_type=WebRequestType.XHR,
             params={
