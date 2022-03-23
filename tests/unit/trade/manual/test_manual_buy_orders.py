@@ -15,7 +15,8 @@ def test_parse_manual_buy_order_confirmation_uk_equity_ok():
     confirm_html = Path(Path(__file__).parent / 'files/buy/manual-buy-order-confirmation-uk-equity.html')\
         .read_text()
 
-    order_confirmation = parse_manual_order_confirmation_page(confirm_html=confirm_html)
+    order_confirmation = parse_manual_order_confirmation_page(confirm_html=confirm_html,
+                                                              amount_type=OrderAmountType.Quantity)
 
     assert order_confirmation.order_date.strftime('%d/%m/%Y') == '20/03/2022'
     assert order_confirmation.stock_code == 'ASC'
@@ -29,7 +30,8 @@ def test_parse_manual_buy_order_confirmation_us_equity_ok():
     confirm_html = Path(Path(__file__).parent / 'files/buy/manual-buy-order-confirmation-us-equity.html')\
         .read_text()
 
-    order_confirmation = parse_manual_order_confirmation_page(confirm_html=confirm_html)
+    order_confirmation = parse_manual_order_confirmation_page(confirm_html=confirm_html,
+                                                              amount_type=OrderAmountType.Quantity)
 
     assert order_confirmation.order_date.strftime('%d/%m/%Y') == '20/03/2022'
     assert order_confirmation.stock_code == 'MARA'
@@ -83,10 +85,10 @@ def test_submit_manual_buy_order_confirmation_uk_equity():
             'product_no': "70",
             'available': "179515.7",
             'holding': "0",
-            'holding_value': "0.00",
+            'holding_value': "0.0",
             'transfer_units': "",
             'remaining_units': "0",
-            'remaining_units_value': "0.00",
+            'remaining_units_value': "0.0",
             'isin': "GB0030927254",
             'epic': "",
             'currency_code': "GBX",
@@ -159,10 +161,10 @@ def test_submit_manual_buy_order_confirmation_us_equity():
             'product_no': "70",
             'available': "177721.1",
             'holding': "0",
-            'holding_value': "0.00",
+            'holding_value': "0.0",
             'transfer_units': "",
             'remaining_units': "0",
-            'remaining_units_value': "0.00",
+            'remaining_units_value': "0.0",
             'isin': "US5657881067",
             'epic': "",
             'currency_code': "USD",

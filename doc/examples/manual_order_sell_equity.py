@@ -17,18 +17,18 @@ if __name__ == '__main__':
     config = ConfigLoader(logger).load_api_config(str(Path(__file__).parent) + "/secrets.json")
 
     # UK
-    stock_ticker = 'PDG'
-    position_type = OrderPositionType.Sell
-    amount_type = OrderAmountType.Quantity
-    stock_quantity = 200  # +/- £49.87 @ 21.852p
-    investment_types = [InvestmentTypes.SHARES]
-
-    # US
-    # stock_ticker = 'TUSK'
+    # stock_ticker = 'PDG'
     # position_type = OrderPositionType.Sell
     # amount_type = OrderAmountType.Quantity
-    # stock_quantity = 50  # +/- £86.19 @ 2.09 USD
-    # investment_types = [InvestmentTypes.OVERSEAS]
+    # stock_quantity = 200  # +/- £49.87 @ 21.852p
+    # investment_types = [InvestmentTypes.SHARES]
+
+    # US
+    stock_ticker = 'BITF'
+    position_type = OrderPositionType.Sell
+    amount_type = OrderAmountType.Quantity
+    stock_quantity = 50  # +/- £86.19 @ 2.09 USD
+    investment_types = [InvestmentTypes.OVERSEAS]
 
     web_session_manager = WebSessionManagerFactory.create_with_file_storage(logger)
     try:

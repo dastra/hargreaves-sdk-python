@@ -5,6 +5,7 @@ import pytest
 from hargreaves.search.models import InvestmentCategoryTypes
 from hargreaves.trade.manual.errors import ManualOrderFailedError
 from hargreaves.trade.manual.parsers import parse_manual_order_entry_page, parse_manual_order_confirmation_page
+from hargreaves.trade.models import OrderAmountType
 
 
 def test_parse_manual_order_entry_uk_equity_ok():
@@ -63,4 +64,4 @@ def test_parse_manual_order_entry_error():
 
     with pytest.raises(ManualOrderFailedError,
                        match=r"We have found an unprocessed order for this stock."):
-        parse_manual_order_confirmation_page(confirm_html=confirm_html)
+        parse_manual_order_confirmation_page(confirm_html=confirm_html, amount_type=OrderAmountType.Quantity)

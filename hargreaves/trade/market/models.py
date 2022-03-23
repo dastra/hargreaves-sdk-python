@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from hargreaves.trade.models import OrderPositionType, OrderAmountType
+from hargreaves.trade.models import OrderPositionType, OrderAmountType, IOrderConfirmation
 
 
 class MarketOrderPosition:
@@ -204,7 +204,9 @@ class MarketOrder():
         return self._including_charges
 
 
-class Price:
+class MarketOrderQuote():
+    _session_hl_vt: str
+    _hl_vt: str
     _sedol_code: str
     _number_of_shares: float
     _price: str
@@ -220,16 +222,27 @@ class Price:
     _fx_charge: float
     category_code: str
 
-    def __init__(self, sedol_code: str, number_of_shares: float, price: str, share_value: float,
-                 ptm_levy: float, commission: float, stamp_duty: float, settlement_date: datetime.date,
+    def __init__(self,
+                 session_hl_vt: str,
+                 hl_vt: str,
+                 sedol_code: str,
+                 number_of_shares: float,
+                 price: str,
+                 share_value: Optional[float],
+                 ptm_levy: Optional[float],
+                 commission: float,
+                 stamp_duty: Optional[float],
+                 settlement_date: datetime.date,
                  total_trade_value: float,
-                 exchange_rate: float,
-                 conversion_price: float,
-                 conversion_sub_total: float,
-                 fx_charge: float,
+                 exchange_rate: Optional[float],
+                 conversion_price: Optional[float],
+                 conversion_sub_total: Optional[float],
+                 fx_charge: Optional[float],
                  category_code: str
                  ):
         """
+        :param session_hl_vt: str - The security code to be used for session keepalive
+        :param hl_vt: str - The security code
         :param sedol_code: str B6QH1J2
         :param number_of_shares: float.  The number of shares being traded
         :param price: str.  The price in pence which they are being traded at - i.e. 18.454p
@@ -241,7 +254,140 @@ class Price:
         :param settlement_date: datetime.date The date the trade will be settled
         :param total_trade_value: The total amount of the trade, including share_value and all taxes and fees
         """
+        self._session_hl_vt = session_hl_vt
+        self._hl_vt = hl_vt
+        self._sedol_code = sedol_code
+        self._number_of_shares = number_of_shares
+        self._price = price
+        self._share_value = share_value
+        self._ptm_levy = ptm_levy
+        self._commission = commission
+        self._stamp_duty = stamp_duty
+        self._settlement_date = settlement_date
+        self._total_trade_value = total_trade_value
+        self._exchange_rate = exchange_rate
+        self._conversion_price = conversion_price
+        self._conversion_sub_total = conversion_sub_total
+        self._fx_charge = fx_charge
+        self._category_code = category_code
 
+    @property
+    def session_hl_vt(self):
+        return self._session_hl_vt
+
+    @property
+    def hl_vt(self):
+        return self._hl_vt
+
+    @property
+    def sedol_code(self):
+        return self._sedol_code
+
+    @property
+    def number_of_shares(self):
+        return self._number_of_shares
+
+    @property
+    def price(self):
+        return self._price
+
+    @property
+    def share_value(self):
+        return self._share_value
+
+    @property
+    def ptm_levy(self):
+        return self._ptm_levy
+
+    @property
+    def commission(self):
+        return self._commission
+
+    @property
+    def stamp_duty(self):
+        return self._stamp_duty
+
+    @property
+    def settlement_date(self):
+        return self._settlement_date
+
+    @property
+    def total_trade_value(self):
+        return self._total_trade_value
+
+    @property
+    def exchange_rate(self):
+        return self._exchange_rate
+
+    @property
+    def conversion_price(self):
+        return self._conversion_price
+
+    @property
+    def conversion_sub_total(self):
+        return self._conversion_sub_total
+
+    @property
+    def fx_charge(self):
+        return self._fx_charge
+
+    @property
+    def category_code(self):
+        return self._category_code
+
+    def __str__(self):
+        return f"""MarketOrderQuote[
+            session_hl_vt={self.session_hl_vt},
+            hl_vt={self.hl_vt},
+            sedol_code={self.sedol_code},
+            number_of_shares={self.number_of_shares},
+            price={self.price},
+            share_value={self.share_value},
+            ptm_levy={self.ptm_levy},
+            commission={self.commission}, 
+            stamp_duty={self.stamp_duty},
+            settlement_date={self.settlement_date},
+            total_trade_value={self.total_trade_value},
+            exchange_rate={self.exchange_rate},
+            conversion_price={self.conversion_price},
+            conversion_sub_total={self.conversion_sub_total},
+            fx_charge={self.fx_charge},
+            category_code={self.category_code}
+        ]"""
+
+
+class MarketOrderConfirmation(IOrderConfirmation):
+    _sedol_code: str
+    _number_of_shares: float
+    _price: str
+    _share_value: float
+    _ptm_levy: float
+    _commission: float
+    _stamp_duty: float
+    _settlement_date: datetime.date
+    _total_trade_value: float
+    _exchange_rate: float
+    _conversion_price: float
+    _conversion_sub_total: float
+    _fx_charge: float
+    category_code: str
+
+    def __init__(self,
+                 sedol_code: str,
+                 number_of_shares: float,
+                 price: str,
+                 share_value: Optional[float],
+                 ptm_levy: Optional[float],
+                 commission: float,
+                 stamp_duty: Optional[float],
+                 settlement_date: datetime.date,
+                 total_trade_value: float,
+                 exchange_rate: Optional[float],
+                 conversion_price: Optional[float],
+                 conversion_sub_total: Optional[float],
+                 fx_charge: Optional[float],
+                 category_code: str
+                 ):
         self._sedol_code = sedol_code
         self._number_of_shares = number_of_shares
         self._price = price
@@ -312,88 +458,6 @@ class Price:
     @property
     def category_code(self):
         return self._category_code
-
-
-class MarketOrderQuote(Price):
-    _session_hl_vt: str
-    _hl_vt: str
-
-    def __init__(self,
-                 session_hl_vt: str,
-                 hl_vt: str,
-                 sedol_code: str,
-                 number_of_shares: float,
-                 price: str,
-                 share_value: Optional[float],
-                 ptm_levy: Optional[float],
-                 commission: float,
-                 stamp_duty: Optional[float],
-                 settlement_date: datetime.date,
-                 total_trade_value: float,
-                 exchange_rate: Optional[float],
-                 conversion_price: Optional[float],
-                 conversion_sub_total: Optional[float],
-                 fx_charge: Optional[float],
-                 category_code: str
-                 ):
-        """
-        :param session_hl_vt: str The security code to be used for session keepalive
-        :param hl_vt: str The security code
-        """
-        Price.__init__(self, sedol_code=sedol_code, number_of_shares=number_of_shares, price=price,
-                       share_value=share_value, ptm_levy=ptm_levy, commission=commission, stamp_duty=stamp_duty,
-                       settlement_date=settlement_date, total_trade_value=total_trade_value,
-                       exchange_rate=exchange_rate, conversion_price=conversion_price,
-                       conversion_sub_total=conversion_sub_total, fx_charge=fx_charge,
-                       category_code=category_code
-                       )
-
-        self._session_hl_vt = session_hl_vt
-        self._hl_vt = hl_vt
-
-    @property
-    def session_hl_vt(self):
-        return self._session_hl_vt
-
-    @property
-    def hl_vt(self):
-        return self._hl_vt
-
-    def __str__(self):
-        return f"""MarketOrderQuote[
-            sedol_code={self.sedol_code},
-            number_of_shares={self.number_of_shares},
-            price={self.price},
-            share_value={self.share_value},
-            ptm_levy={self.ptm_levy},
-            commission={self.commission}, 
-            stamp_duty={self.stamp_duty},
-            settlement_date={self.settlement_date},
-            total_trade_value={self.total_trade_value},
-            exchange_rate={self.exchange_rate},
-            conversion_price={self.conversion_price},
-            conversion_sub_total={self.conversion_sub_total},
-            fx_charge={self.fx_charge},
-            category_code={self.category_code},
-            session_hl_vt={self.session_hl_vt},
-            hl_vt={self.hl_vt}
-        ]"""
-
-
-class MarketOrderConfirmation(Price):
-
-    def __init__(self, sedol_code: str, number_of_shares: float, price: str, share_value: float,
-                 ptm_levy: float, commission: float, stamp_duty: float, settlement_date: datetime.date,
-                 total_trade_value: float, exchange_rate: float, conversion_price: float,
-                 conversion_sub_total: float, fx_charge: float, category_code: str
-                 ):
-        Price.__init__(self, sedol_code=sedol_code, number_of_shares=number_of_shares, price=price,
-                       share_value=share_value, ptm_levy=ptm_levy, commission=commission, stamp_duty=stamp_duty,
-                       settlement_date=settlement_date, total_trade_value=total_trade_value,
-                       exchange_rate=exchange_rate, conversion_price=conversion_price,
-                       conversion_sub_total=conversion_sub_total, fx_charge=fx_charge,
-                       category_code=category_code
-                       )
 
     def __str__(self):
         return f"""MarketOrderConfirmation[

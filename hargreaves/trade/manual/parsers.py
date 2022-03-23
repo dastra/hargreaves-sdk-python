@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 
 from hargreaves.trade.manual.errors import ManualOrderFailedError
 from hargreaves.trade.manual.models import ManualOrderConfirmation, ManualOrderPosition
+from hargreaves.trade.models import OrderAmountType
 from hargreaves.utils.input import InputHelper
 
 
@@ -39,7 +40,7 @@ def parse_manual_order_entry_page(order_html: str, category_code: str) -> Manual
         category_code=category_code)
 
 
-def parse_manual_order_confirmation_page(confirm_html: str) -> ManualOrderConfirmation:
+def parse_manual_order_confirmation_page(confirm_html: str, amount_type: OrderAmountType) -> ManualOrderConfirmation:
     soup = BeautifulSoup(confirm_html, 'html.parser')
 
     error_box = soup.select_one('div[class="box error-box spacer-bottom"]')
@@ -75,7 +76,10 @@ def parse_manual_order_confirmation_page(confirm_html: str) -> ManualOrderConfir
         'Order Status': 'order_status',
     }
 
-    params = {}
+    params = {
+        'amount_type': amount_type
+    }
+
     for key, value in raw_order_data.items():
         param_key = column_header_map[key]
         params[param_key] = value

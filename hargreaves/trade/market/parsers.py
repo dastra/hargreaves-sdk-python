@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 from hargreaves.trade.market.errors import MarketClosedError, MarketOrderFailedError
 from hargreaves.trade.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrderConfirmation
+from hargreaves.utils.input import InputHelper
 
 
 def parse_market_order_entry_page(order_html: str, category_code: str) -> MarketOrderPosition:
@@ -122,10 +123,10 @@ def parse_market_order_confirmation_page(confirm_html: str, category_code: str) 
 
     vals = {
         'sedol_code': qc.get('data-trade-sedol'),
-        'number_of_shares': int(qc.get('data-trade-quantity')),
-        'share_value': float(qc.get('data-trade-total-net')),
-        'commission': float(qc.get('data-trade-commission')),
-        'total_trade_value': float(qc.get('data-trade-total-gross')),
+        'number_of_shares': InputHelper.parse_int(qc.get('data-trade-quantity')),
+        'share_value': InputHelper.parse_float(qc.get('data-trade-total-net')),
+        'commission': InputHelper.parse_float(qc.get('data-trade-commission')),
+        'total_trade_value': InputHelper.parse_float(qc.get('data-trade-total-gross')),
         'category_code': category_code,
         # optional:
         'exchange_rate': None,

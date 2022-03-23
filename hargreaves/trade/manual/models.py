@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from hargreaves.trade.models import OrderPositionType, OrderAmountType
+from hargreaves.trade.models import OrderPositionType, OrderAmountType, IOrderConfirmation
 
 
 class ManualOrderPosition:
@@ -71,10 +71,10 @@ class ManualOrderPosition:
             'product_no': str(self._account_id),
             'available': str(self._available),
             'holding': str(self._holding),
-            'holding_value': "{:.2f}".format(self._holding_value),
+            'holding_value': '0.0' if self._holding_value == 0 else str(self._holding_value),
             'transfer_units': '' if self._transfer_units is None else "{:.4f}".format(self._transfer_units),
             'remaining_units': self._remaining_units,
-            'remaining_units_value': "{:.2f}".format(self._remaining_units_value),
+            'remaining_units_value': '0.0' if self._remaining_units_value == 0 else str(self._remaining_units_value),
             'isin': self._isin,
             'epic': self._epic,
             'currency_code': self._currency_code,
@@ -231,9 +231,10 @@ class ManualOrder():
         ]"""
 
 
-class ManualOrderConfirmation():
+class ManualOrderConfirmation(IOrderConfirmation):
     _order_date: datetime.date
     _stock_code: str
+    _amount_type: OrderAmountType
     _quantity: float
     _order_type: str
     _limit_price: float
@@ -242,6 +243,7 @@ class ManualOrderConfirmation():
     def __init__(self,
                  order_date: datetime.date,
                  stock_code: str,
+                 amount_type: OrderAmountType,
                  quantity: float,
                  order_type: str,
                  limit_price: float,
@@ -249,6 +251,7 @@ class ManualOrderConfirmation():
                  ):
         self._order_date = order_date
         self._stock_code = stock_code
+        self._amount_type = amount_type
         self._quantity = quantity
         self._order_type = order_type
         self._limit_price = limit_price
@@ -261,6 +264,10 @@ class ManualOrderConfirmation():
     @property
     def stock_code(self):
         return self._stock_code
+
+    @property
+    def amount_type(self):
+        return self._amount_type
 
     @property
     def quantity(self):
@@ -281,6 +288,7 @@ class ManualOrderConfirmation():
     def __str__(self):
         return f"""ManualOrderConfirmation[
             order_date={self._order_date},
+            amount_type={self._amount_type},
             stock_code={self._stock_code},
             quantity={self._quantity},
             order_type={self._order_type},

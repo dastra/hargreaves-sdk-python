@@ -11,12 +11,16 @@ from hargreaves.analysis.har2md import Har2MdController
 from hargreaves.authentication.clients import LoggedInSession, AuthenticationClient
 from hargreaves.config import ApiConfiguration
 from hargreaves.journey.storage import CookiesFileStorage, RequestSessionFileStorage
+from hargreaves.search import InvestmentTypes
 from hargreaves.search.clients import SecuritySearchClient
 from hargreaves.session.clients import SessionClient
+from hargreaves.trade.clients import PositionCalculator
 from hargreaves.trade.manual.clients import ManualOrderClient
 from hargreaves.trade.manual.models import ManualOrder
 from hargreaves.trade.market.clients import MarketOrderClient
-from hargreaves.trade.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrder
+from hargreaves.trade.market.errors import MarketClosedError
+from hargreaves.trade.market.models import MarketOrderQuote, MarketOrder
+from hargreaves.trade.models import DealRequest, OrderPositionType, DealResult
 from hargreaves.utils.paths import PathHelper
 from hargreaves.utils.timings import ITimeService, TimeService
 from hargreaves.web.cookies import HLCookieHelper
@@ -150,6 +154,115 @@ class WebSessionManager:
 
         order_confirmation = self.__manual_order_client.submit_order(order)
         return order_confirmation
+
+    def execute_smart_deal(self, deal_request: DealRequest):
+
+        self.__logger.debug("Smart Deal - Start")
+
+        sedol_code = None
+        category_code = None
+        account_value = 0.00
+
+        try:
+            self.__logger.debug("Get account current value ...")
+
+            accounts = self.get_account_summary()
+
+            account_summary = next((account_summary for account_summary in accounts
+                                    if account_summary.account_id == deal_request.account_id), None)
+
+            account_detail = self.get_account_detail(account_summary)
+            account_value = account_detail.total_value
+            account_cash = account_detail.total_cash
+
+            self.__logger.debug(f"Account Value = £ {account_value:,.2f}, "
+                                f"Cash Available = £ {account_cash:,.2f}")
+
+            self.__logger.debug("Search for security ...")
+
+            search_result = self.search_security(deal_request.stock_ticker, InvestmentTypes.ALL)
+            print(f"Found {len(search_result)} results")
+            if len(search_result) != 1:
+                raise Exception(f"Unexpected number {(len(search_result))} of securities found!")
+
+            self.__logger.debug(search_result[0])
+
+            sedol_code = search_result[0].sedol_code
+            category_code = search_result[0].category
+
+            self.__logger.debug("Get current position ...")
+            current_position = self.get_market_order_position(
+                account_id=deal_request.account_id,
+                sedol_code=sedol_code,
+                category_code=category_code)
+
+            self.__logger.debug(current_position.as_form_fields())
+
+            self.__logger.debug("Calculate quantity ...")
+
+            (amount_type, order_quantity) = PositionCalculator.calculate(
+                position_type=deal_request.position_type,
+                position_percentage=deal_request.position_percentage,
+                account_value=account_value,
+                units_held=current_position.units_held
+            )
+
+            self.__logger.debug(f"amount_type = {amount_type}, order_quantity = {order_quantity:,f}...")
+
+            self.__logger.debug("Get market-order quote ...")
+
+            order = MarketOrder(
+                position=current_position,
+                position_type=deal_request.position_type,
+                amount_type=amount_type,
+                quantity=order_quantity,
+                including_charges=(True if deal_request.position_type == OrderPositionType.Buy else False)
+            )
+
+            order_quote = self.get_market_order_quote(order)
+            self.__logger.debug(order_quote)
+
+            self.__logger.debug("Confirm market-order ...")
+
+            order_confirmation = self.execute_market_order(order_quote)
+            self.__logger.debug(order_confirmation)
+
+            return DealResult(deal_request, order_confirmation)
+
+        # TODO -> what about market order which cannot be filled?
+        except MarketClosedError as ex:
+            if not (deal_request.allow_fill_or_kill and ex.can_place_fill_or_kill_order):
+                raise ex
+
+            self.__logger.debug("Get current position ...")
+            current_position = self.get_manual_order_position(account_id=deal_request.account_id,
+                                                              sedol_code=sedol_code,
+                                                              category_code=category_code)
+            self.__logger.debug(current_position.as_form_fields())
+
+            self.__logger.debug("Calculate quantity ...")
+
+            (amount_type, order_quantity) = PositionCalculator.calculate(
+                position_type=deal_request.position_type,
+                position_percentage=deal_request.position_percentage,
+                account_value=account_value,
+                units_held=current_position.remaining_units
+            )
+
+            self.__logger.debug(f"amount_type = {amount_type}, order_quantity = {order_quantity:,f}...")
+
+            order = ManualOrder(
+                position=current_position,
+                position_type=deal_request.position_type,
+                amount_type=amount_type,
+                quantity=order_quantity,
+                limit=None)
+
+            # submit order
+            order_confirmation = self.submit_manual_order(order)
+            self.__logger.debug(order_confirmation)
+
+            return DealResult(deal_request, order_confirmation)
 
     def logout(self):
         self.__logger.debug(f"Logging Out ...")

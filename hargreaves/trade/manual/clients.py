@@ -52,6 +52,6 @@ class ManualOrderClient:
         if res.status_code != http.HTTPStatus.OK:
             raise ManualOrderFailedError(f"Purchase invalid, HTTP response code was {res.status_code}")
 
-        order_confirmation = parse_manual_order_confirmation_page(confirm_html=res.text)
+        order_confirmation = parse_manual_order_confirmation_page(confirm_html=res.text, amount_type=order.amount_type)
 
         return order_confirmation
