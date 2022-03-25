@@ -1,4 +1,5 @@
 import logging
+import traceback
 from pathlib import Path
 
 from hargreaves.config.loader import ConfigLoader
@@ -26,7 +27,7 @@ if __name__ == '__main__':
             print(search_result)
 
     except Exception as ex:
-        logger.error(ex)
+        logger.error(traceback.print_exc())
     finally:
         web_session_manager.stop_session(config)
         web_session_manager.convert_HAR_to_markdown()

@@ -4,7 +4,8 @@ import pytest
 
 from hargreaves.search.models import InvestmentCategoryTypes
 from hargreaves.trade.market.errors import MarketClosedError, MarketOrderFailedError, MarketOrderLiveQuoteError
-from hargreaves.trade.market.parsers import parse_market_order_entry_page, parse_market_order_confirmation_page
+from hargreaves.trade.market.parsers import parse_market_order_entry_page, parse_market_order_confirmation_page, \
+    parse_market_order_quote_page
 
 
 def test_parse_order_entry_uk_market_closed():
@@ -62,3 +63,11 @@ def test_parse_market_order_confirmation_no_live_quote():
     with pytest.raises(MarketOrderLiveQuoteError,
                        match=r"Unable to retrieve a live quote"):
         parse_market_order_confirmation_page(confirm_html=confirm_html, category_code=InvestmentCategoryTypes.EQUITIES)
+
+
+def test_parse_market_order_quote_no_live_quote():
+    quote_html = Path(Path(__file__).parent / 'files/all/market-order-quote-no-live-quote.html').read_text()
+
+    with pytest.raises(MarketOrderLiveQuoteError,
+                       match=r"Unable to retrieve a live quote"):
+        parse_market_order_quote_page(quote_html=quote_html, category_code=InvestmentCategoryTypes.OVERSEAS)

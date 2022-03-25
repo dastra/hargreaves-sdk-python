@@ -18,6 +18,8 @@ from hargreaves.trade.manual.clients import ManualOrderClient
 from hargreaves.trade.manual.models import ManualOrder
 from hargreaves.trade.market.clients import MarketOrderClient
 from hargreaves.trade.market.models import MarketOrderQuote, MarketOrder
+from hargreaves.trade.pending.clients import PendingOrdersClient
+from hargreaves.trade.pending.models import PendingOrder
 from hargreaves.trade.smart.clients import SmartDealClient
 from hargreaves.trade.smart.models import DealRequest
 from hargreaves.utils.paths import PathHelper
@@ -46,6 +48,7 @@ class WebSessionManager:
     _market_order_client: MarketOrderClient
     _manual_order_client: ManualOrderClient
     _smart_deal_client: SmartDealClient
+    _pending_orders_client: PendingOrdersClient
 
     def __init__(self,
                  logger: Logger,
@@ -88,11 +91,23 @@ class WebSessionManager:
                                                   self._market_order_client,
                                                   self._manual_order_client)
 
+        self._pending_orders_client = PendingOrdersClient(self._logger, self._time_service, logged_in_session)
+
+
     def get_account_summary(self) -> List[AccountSummary]:
         return self._account_client.get_account_summary()
 
     def get_account_detail(self, account_summary: AccountSummary) -> AccountDetail:
         return self._account_client.get_account_detail(account_summary)
+
+    def get_pending_orders(self, account_id) -> List[PendingOrder]:
+        return self._pending_orders_client.get_pending_orders(account_id)
+
+    def cancel_pending_order(self, cancel_order_id: int, pending_orders: List[PendingOrder]):
+        return self._pending_orders_client.cancel_pending_order(
+            cancel_order_id=cancel_order_id,
+            pending_orders=pending_orders
+        )
 
     def search_security(self, search_string: str, investment_types: list):
         return self._search_client.investment_search(search_string, investment_types)

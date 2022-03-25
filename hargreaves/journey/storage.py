@@ -54,7 +54,7 @@ class CookiesFileStorage(ICookieStorage):
                 args['rest'] = args['_rest']
                 del args['_rest']
                 c = Cookie(**args)
-                self._logger.debug(c)
+                # self._logger.debug(c)
                 session.cookies.set_cookie(c)
 
         except Exception as ex:

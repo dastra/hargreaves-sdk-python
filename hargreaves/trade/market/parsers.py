@@ -3,7 +3,8 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from hargreaves.trade.market.errors import MarketClosedError, MarketOrderFailedError, MarketOrderLiveQuoteError
+from hargreaves.trade.market.errors import MarketClosedError, MarketOrderFailedError, MarketOrderLiveQuoteError, \
+    MarketOrderQuoteError
 from hargreaves.trade.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrderConfirmation
 from hargreaves.utils.input import InputHelper
 
@@ -52,15 +53,17 @@ QUOTE_MAP = {
 }
 
 
-def parse_market_order_quote_page(quote_html: str, category_code: str) -> MarketOrderQuote:
+def parse_market_order_quote_page(quote_html: str, category_code: str, error_text=None) -> MarketOrderQuote:
     soup = BeautifulSoup(quote_html, 'html.parser')
 
     form = soup.find("form", id="dealform")
     if form is None:
-        raise MarketClosedError(
-            can_place_fill_or_kill_order=(len(soup.select('a[title="Place fill or kill"]')) == 1),
-            can_place_limit_order=(len(soup.select('a[title="Place limit order"]')) == 1)
-        )
+        err = soup.select_one('div.dialog_content')
+        error_text = err.get_text(separator=' ', strip=True) if err is not None else "Unknown, check HTML"
+        if 'Unable to retrieve a live quote' in error_text:
+            raise MarketOrderLiveQuoteError(error_text, quote_html)
+        else:
+            raise MarketOrderQuoteError(error_text, quote_html)
 
     # var security_token = '3729677934';
     session_hl_vt = re.findall("var security_token = '(\\d+)';", quote_html)[0]
@@ -144,9 +147,9 @@ def parse_market_order_confirmation_page(confirm_html: str, category_code: str) 
     }
 
     buy_price_span = qc.select('span[class="label-bold deal_text_lg"]')[2].get_text(strip=True)
-    buy_price_matches = re.findall("^([\\d.]+p$)", buy_price_span)
+    buy_price_matches = re.findall("^([\\d.,]+p$)", buy_price_span)
     if len(buy_price_matches) != 1:
-        buy_price_matches = re.findall("^£([\\d.]+$)", buy_price_span)
+        buy_price_matches = re.findall("^£([\\d.,]+$)", buy_price_span)
         if len(buy_price_matches) != 1:
             raise ValueError(f"Invalid format for buy price: {buy_price_span}")
 

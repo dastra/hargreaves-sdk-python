@@ -2,6 +2,7 @@ import logging
 import traceback
 from pathlib import Path
 
+from hargreaves.account import AccountType
 from hargreaves.config.loader import ConfigLoader
 from hargreaves.journey.clients import WebSessionManagerFactory
 from hargreaves.utils.logging import LoggerFactory
@@ -16,17 +17,16 @@ if __name__ == '__main__':
     try:
         web_session_manager.start_session(config)
         accounts = web_session_manager.get_account_summary()
-        for account_summary in accounts:
-            # Fetches information in my-accounts page
-            print(account_summary)
-        for account_summary in accounts:
-            # Fetches information in my-accounts page
-            account_detail = web_session_manager.get_account_detail(account_summary)
-            print(f'Your {account_detail.account_type} is worth {account_detail.total_value} with the following '
-                  f'holdings:')
-            for investment in account_detail.investments:
-                print(f'\tYou hold {investment.units_held} units of {investment.security_name} '
-                      f'worth {investment.value_gbp}')
+
+        # select the SIPP account
+        sipp = next((account_summary for account_summary in accounts
+                     if account_summary.account_type == AccountType.SIPP), None)
+
+        pending_orders = web_session_manager.get_pending_orders(sipp.account_id)
+        print(f"Returned {len(pending_orders)} pending order(s) ...")
+
+        for pending_order in pending_orders:
+            print(pending_order)
 
     except Exception as ex:
         logger.error(traceback.print_exc())

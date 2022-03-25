@@ -109,6 +109,56 @@ def test_execute_market_sell_order_confirmation_uk_equity():
         assert session_client.was_called is True
 
 
+def test_execute_market_sell_order_confirmation_uk_equity_2():
+    confirm_html = Path(Path(__file__).parent / 'files/sell/market-sell-order-confirmation-uk-equity-2.html'). \
+        read_text()
+
+    market_order_quote = MarketOrderQuote(
+        session_hl_vt='3089455817',
+        hl_vt='2422340661',
+        sedol_code='B1JQBT1',
+        number_of_shares=110.00,
+        price='25.9504p',
+        share_value=25.95,
+        ptm_levy=0.00,
+        commission=5.95,
+        stamp_duty=0.0,
+        settlement_date=InputHelper.parse_date('23/03/2022'),
+        total_trade_value=20.0,
+        exchange_rate=None,
+        conversion_price=None,
+        conversion_sub_total=None,
+        fx_charge=None,
+        category_code=InvestmentCategoryTypes.EQUITIES
+    )
+
+    with MockWebSession() as web_session:
+        logger = LoggerFactory.create_std_out()
+
+        expected_params = {
+            'hl_vt': '2422340661',
+            'sedol': 'B1JQBT1'
+        }
+        mock = web_session.mock_post(
+            url='https://online.hl.co.uk/my-accounts/equity_confirmation',
+            headers={
+                'Referer': f'https://online.hl.co.uk/my-accounts/security_deal/sedol/{market_order_quote.sedol_code}'
+            },
+            response_text=confirm_html,
+            status_code=http.HTTPStatus.OK
+        )
+        time_service = MockTimeService()
+        session_client = MockSessionClient()
+        client = MarketOrderClient(logger, time_service, web_session, session_client)
+
+        order_confirmation = client.execute_order(market_order_quote=market_order_quote)
+        actual_param = mock.request_history[0].text
+
+        assert urlencode(expected_params) == actual_param
+        assert type(order_confirmation) == MarketOrderConfirmation
+        assert session_client.was_called is True
+
+
 def test_execute_market_sell_order_confirmation_us_equity():
     confirm_html = Path(Path(__file__).parent / 'files/sell/market-sell-order-confirmation-us-equity.html'). \
         read_text()
