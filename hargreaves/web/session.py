@@ -32,16 +32,19 @@ class WebSession(IWebSession):
     _session: requests.Session
     _request_session_context: RequestSessionContext
     _header_factory: IHeaderFactory
+    _retry_count: int
 
     def __init__(self,
                  logger: Logger,
                  session: requests.Session,
                  request_session_context: RequestSessionContext,
-                 header_factory: IHeaderFactory):
+                 header_factory: IHeaderFactory,
+                 retry_count: int = 3):
         self._logger = logger
         self._session = session
         self._request_session_context = request_session_context
         self._header_factory = header_factory
+        self._retry_count = retry_count
 
     @property
     def cookies(self) -> CookieJar:
@@ -54,11 +57,17 @@ class WebSession(IWebSession):
         prepared_req = session.prepare_request(request)
 
         start_time = datetime.now()
-        try:
-            response = session.send(prepared_req, stream=True)
-        except RemoteDisconnected:
-            self._logger.warning("RemoteDisconnected error, let's retry ...")
-            response = session.send(prepared_req, stream=True)
+        remaining_retries = self._retry_count
+        should_retry = True
+        while should_retry:
+            try:
+                response = session.send(prepared_req, stream=True)
+                should_retry = False
+            except RemoteDisconnected:
+                remaining_retries = remaining_retries - 1
+                self._logger.warning(f"RemoteDisconnected error (remaining_retries = {remaining_retries}")
+                if remaining_retries <= 0:
+                    raise RemoteDisconnected
 
         socket = response.raw.connection.sock
 

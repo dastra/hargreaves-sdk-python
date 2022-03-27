@@ -13,8 +13,17 @@ if __name__ == '__main__':
 
     config = ConfigLoader(logger).load_api_config(str(Path(__file__).parent) + "/secrets.json")
 
-    stock_ticker = 'PDG'  # UK
+    # UK
+    stock_ticker = 'PDG'
     investment_types = [InvestmentTypes.SHARES]
+
+    # US
+    # stock_ticker = 'TUSK'
+    # investment_types = [InvestmentTypes.OVERSEAS]
+
+    # US, SEARCH ALL
+    # stock_ticker = 'FB'
+    # investment_types = InvestmentTypes.ALL
 
     web_session_manager = WebSessionManagerFactory.create_with_file_storage(logger)
     try:

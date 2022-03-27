@@ -12,7 +12,7 @@ from hargreaves.authentication.clients import LoggedInSession, AuthenticationCli
 from hargreaves.config import ApiConfiguration
 from hargreaves.journey.storage import CookiesFileStorage, RequestSessionFileStorage
 from hargreaves.search import InvestmentTypes
-from hargreaves.search.clients import SecuritySearchClient
+from hargreaves.search.clients import SecuritySearchClient, security_filter
 from hargreaves.session.clients import SessionClient
 from hargreaves.trade.manual.clients import ManualOrderClient
 from hargreaves.trade.manual.models import ManualOrder
@@ -76,7 +76,7 @@ class WebSessionManager:
 
         logged_in_session = LoggedInSession(self._logger, self._web_session, api_config)
 
-        self._search_client = SecuritySearchClient(self._logger, self._web_session, self._time_service)
+        self._search_client = SecuritySearchClient(self._logger, logged_in_session, self._time_service)
         self._authentication_client = AuthenticationClient(self._logger, self._time_service, self._web_session)
         self._account_client = AccountClient(self._logger, logged_in_session)
 
@@ -148,15 +148,17 @@ class WebSessionManager:
         self._logger.debug(f"Account Value = £ {account_value:,.2f}, "
                             f"Cash Available = £ {account_cash:,.2f}")
 
-        search_result = self.search_security(deal_request.stock_ticker, InvestmentTypes.ALL)
-        print(f"Found {len(search_result)} results")
-        if len(search_result) != 1:
-            raise Exception(f"Unexpected number {(len(search_result))} of securities found!")
+        search_results = self.search_security(deal_request.stock_ticker, InvestmentTypes.ALL)
 
-        self._logger.debug(search_result[0])
+        print(f"Found {len(search_results)} results, let's filter to 1")
 
-        sedol_code = search_result[0].sedol_code
-        category_code = search_result[0].category
+        found_security = security_filter(
+            search_results=search_results,
+            stock_ticker=deal_request.stock_ticker,
+            sedol_code=deal_request.sedol_code)
+
+        sedol_code = found_security.sedol_code
+        category_code = found_security.category
 
         return self._smart_deal_client.execute_smart_deal(
             deal_request=deal_request,

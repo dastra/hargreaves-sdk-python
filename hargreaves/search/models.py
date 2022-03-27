@@ -1,10 +1,11 @@
 class InvestmentTypes:
-    SHARES = 'shares'           # Shares & other stocks
-    OVERSEAS = 'overseas'       # Overseas stocks
-    FUNDS = 'funds'             # Funds
-    ETFS = 'etfs'               # ETFs
+    SHARES = 'shares'                       # Shares & other stocks
+    OVERSEAS = 'overseas'                   # Overseas stocks
+    FUNDS = 'funds'                         # Funds
+    ETFS = 'etfs'                           # ETFs
+    BONDS_AND_GILTS = 'bonds_and_gilts'     # Bonds & Gilts
 
-    ALL = (OVERSEAS, FUNDS, ETFS, SHARES)
+    ALL = (OVERSEAS, FUNDS, ETFS, SHARES, BONDS_AND_GILTS)
 
 
 class InvestmentCategoryTypes:

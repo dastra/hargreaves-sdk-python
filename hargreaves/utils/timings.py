@@ -8,7 +8,7 @@ class ITimeService:
     def get_current_time(self) -> datetime:
         pass
 
-    def get_current_time_as_epoch_time(self, offset_minutes: int = 0) -> int:
+    def get_current_time_as_epoch_time(self, offset_minutes: int = 0, offset_seconds: int = 0) -> int:
         pass
 
     def sleep(self, min: int = 1, max: int = 2):
@@ -24,8 +24,8 @@ class TimeService(ITimeService):
     def get_current_time(self) -> datetime:
         return datetime.datetime.now()
 
-    def get_current_time_as_epoch_time(self, offset_minutes: int = 0) -> int:
-        relative_time = (datetime.datetime.now() + datetime.timedelta(minutes=offset_minutes))
+    def get_current_time_as_epoch_time(self, offset_minutes: int = 0, offset_seconds: int = 0) -> int:
+        relative_time = (datetime.datetime.now() + datetime.timedelta(minutes=offset_minutes, seconds=offset_seconds))
         return round(relative_time.timestamp() * 1000)
 
     def sleep(self, min: int = 1, max: int = 2):
@@ -47,8 +47,8 @@ class MockTimeService(ITimeService):
     def get_current_time(self) -> datetime:
         return self._current_time
 
-    def get_current_time_as_epoch_time(self, offset_minutes: int = 0) -> int:
-        relative_time = (self._current_time + datetime.timedelta(minutes=offset_minutes))
+    def get_current_time_as_epoch_time(self, offset_minutes: int = 0, offset_seconds: int = 0) -> int:
+        relative_time = (self._current_time + datetime.timedelta(minutes=offset_minutes, seconds=offset_seconds))
         return round(relative_time.timestamp() * 1000)
 
     def sleep(self, min: int = 1, max: int = 2):
