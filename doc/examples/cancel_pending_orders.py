@@ -30,8 +30,8 @@ if __name__ == '__main__':
             for pending_order in pending_orders:
                 print(pending_order)
 
-            cancel_order_id = pending_orders[0]
-            web_session_manager.cancel_pending_order(cancel_order_id=cancel_order_id, pending_orders=pending_orders)
+            web_session_manager.cancel_pending_order(cancel_order_id=pending_orders[0].order_id,
+                                                     pending_orders=pending_orders)
 
     except Exception as ex:
         logger.error(traceback.print_exc())
