@@ -1,5 +1,7 @@
 import datetime
+import logging
 from http.cookiejar import CookieJar
+from random import randint
 from urllib.parse import urlencode
 
 import requests
@@ -9,6 +11,9 @@ from requests_mock import Mocker
 from hargreaves.web.requests import WebRequestType
 from hargreaves.web.session import IWebSession
 from hargreaves.web.timings import ITimeService
+
+
+logger = logging.getLogger(__name__)
 
 
 class MockWebSession(IWebSession):
@@ -83,5 +88,5 @@ class MockTimeService(ITimeService):
         return round(relative_time.timestamp() * 1000)
 
     def sleep(self, minimum: int = 1, maximum: int = 2):
-        # do nothing
-        pass
+        sleep_time = randint(minimum, maximum)
+        logger.debug(f"Mock Pausing for {sleep_time} seconds ...")

@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from http.client import RemoteDisconnected
 from http.cookiejar import CookieJar
+from time import sleep
 
 import requests
 from requests import Response, Request
@@ -63,11 +64,14 @@ class WebSession(IWebSession):
             try:
                 response = session.send(prepared_req, stream=True)
                 should_retry = False
-            except RemoteDisconnected:
-                remaining_retries = remaining_retries - 1
+            except (RemoteDisconnected, requests.ConnectionError) as ex:
                 logger.warning(f"RemoteDisconnected error (remaining_retries = {remaining_retries}")
-                if remaining_retries <= 0:
-                    raise RemoteDisconnected
+                remaining_retries = remaining_retries - 1
+                if remaining_retries > 0:
+                    logger.warning(f"Pausing briefly before retrying ...")
+                    sleep(1)
+                else:
+                    raise ex
 
         socket = response.raw.connection.sock
 

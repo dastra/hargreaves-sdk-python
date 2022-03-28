@@ -1,10 +1,9 @@
 import logging
+from logging import Logger
 
 from hargreaves.session.errors import SessionError
 from hargreaves.web.session import IWebSession, WebRequestType
 from hargreaves.web.timings import ITimeService
-
-logger = logging.getLogger(__name__)
 
 
 class ISessionClient:
@@ -15,6 +14,7 @@ class ISessionClient:
 class SessionClient(ISessionClient):
     _web_session: IWebSession
     _time_service: ITimeService
+    _logger: Logger
 
     def __init__(self,
                  web_session: IWebSession,
@@ -23,8 +23,12 @@ class SessionClient(ISessionClient):
         self._web_session = web_session
         self._time_service = time_service
 
+        self._logger = logging.getLogger(
+            f"{__name__}.{self.__class__.__name__}",
+        )
+
     def session_keepalive(self, sedol_code: str, session_hl_vt: str):
-        logger.debug("Perform 'Session Keepalive'")
+        self._logger.debug("Perform 'Session Keepalive'")
 
         self._time_service.sleep()
 

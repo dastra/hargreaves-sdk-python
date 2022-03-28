@@ -31,6 +31,5 @@ class TimeService(ITimeService):
 
     def sleep(self, minimum: int = 1, maximum: int = 2):
         sleep_time = randint(minimum, maximum)
-        if logger is not None:
-            logger.debug(f"Pausing for {sleep_time} seconds ...")
+        logger.debug(f"Pausing for {sleep_time} seconds ...")
         sleep(sleep_time)
