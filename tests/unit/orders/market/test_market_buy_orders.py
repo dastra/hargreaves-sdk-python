@@ -3,7 +3,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from hargreaves.search.models import InvestmentCategoryTypes
-from hargreaves.session.clients import MockSessionClient
+from hargreaves.session.mocks import MockSessionClient
 from hargreaves.orders.market.clients import MarketOrderClient
 from hargreaves.orders.market.models import MarketOrderQuote, MarketOrderConfirmation
 from hargreaves.orders.market.parsers import parse_market_order_quote_page, \

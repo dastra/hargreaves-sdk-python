@@ -9,7 +9,6 @@ class DealRequest():
     _position_type: OrderPositionType
     _position_percentage: float
     _allow_fill_or_kill: bool
-    _security_name: Optional[str]
     _sedol_code: Optional[str]
 
     def __init__(self,
@@ -18,7 +17,6 @@ class DealRequest():
                  position_type: OrderPositionType,
                  position_percentage: float,
                  allow_fill_or_kill: bool = True,
-                 security_name: str = None,
                  sedol_code: str = None
                  ):
         """
@@ -27,7 +25,6 @@ class DealRequest():
         :param position_type: OrderPositionType - Buy / Sell
         :param position_percentage: float  - BUY: this is the % of the account. SELL: this is the % of the position
         :param allow_fill_or_kill: bool - Will attempt realtime market order first, if true can also place manual order
-        :param security_name: str - Optional, when the search returns multiple results this will be used to narrow down
         :param sedol_code: str - Optional, when the search returns multiple results this will be used to narrow down
         """
         self._stock_ticker = stock_ticker
@@ -35,7 +32,6 @@ class DealRequest():
         self._position_type = position_type
         self._position_percentage = position_percentage
         self._allow_fill_or_kill = allow_fill_or_kill
-        self._security_name = security_name
         self._sedol_code = sedol_code
 
     @property
@@ -59,10 +55,6 @@ class DealRequest():
         return self._allow_fill_or_kill
 
     @property
-    def security_name(self):
-        return self._security_name
-
-    @property
     def sedol_code(self):
         return self._sedol_code
 
@@ -73,7 +65,6 @@ class DealRequest():
             position_type={self.position_type},
             position_percentage={self.position_percentage},
             allow_fill_or_kill={self.allow_fill_or_kill},
-            security_name={self.security_name},
             sedol_code={self.sedol_code}
         ]"""
 

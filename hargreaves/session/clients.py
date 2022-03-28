@@ -12,17 +12,6 @@ class ISessionClient:
         pass
 
 
-class MockSessionClient(ISessionClient):
-    _was_called = False
-
-    def session_keepalive(self, sedol_code: str, session_hl_vt: str):
-        self._was_called = True
-
-    @property
-    def was_called(self):
-        return self._was_called
-
-
 class SessionClient(ISessionClient):
     _web_session: IWebSession
     _time_service: ITimeService
