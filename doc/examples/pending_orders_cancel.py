@@ -2,9 +2,9 @@ import logging
 import traceback
 from pathlib import Path
 
+from hargreaves.account import AccountType
 from hargreaves.config.loader import ConfigLoader
 from hargreaves.journey.clients import WebSessionManagerFactory
-from hargreaves.search import InvestmentTypes
 from hargreaves.utils.logging import LoggerFactory
 
 if __name__ == '__main__':
@@ -13,27 +13,25 @@ if __name__ == '__main__':
 
     config = ConfigLoader().load_api_config(str(Path(__file__).parent) + "/secrets.json")
 
-    # UK
-    stock_ticker = 'PDG'
-    investment_types = [InvestmentTypes.SHARES]
-
-    # US
-    # stock_ticker = 'TUSK'
-    # investment_types = [InvestmentTypes.OVERSEAS]
-
-    # US, SEARCH ALL
-    # stock_ticker = 'FB'
-    # investment_types = InvestmentTypes.ALL
-
     web_session_manager = WebSessionManagerFactory.create_with_file_storage()
     try:
         web_session_manager.start_session(config)
         accounts = web_session_manager.get_account_summary()
 
-        search_result = web_session_manager.search_security(stock_ticker, investment_types)
-        print(f"Found {len(search_result)} results")
-        for search_result in search_result:
-            print(search_result)
+        # select the SIPP account
+        sipp = next((account_summary for account_summary in accounts
+                     if account_summary.account_type == AccountType.SIPP), None)
+
+        while True:
+            pending_orders = web_session_manager.get_pending_orders(sipp.account_id)
+            print(f"Returned {len(pending_orders)} pending order(s) ...")
+            if (len(pending_orders) == 0):
+                break
+            for pending_order in pending_orders:
+                print(pending_order)
+
+            web_session_manager.cancel_pending_order(cancel_order_id=pending_orders[0].order_id,
+                                                     pending_orders=pending_orders)
 
     except Exception as ex:
         logger.error(traceback.print_exc())

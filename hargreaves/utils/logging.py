@@ -5,14 +5,14 @@ from typing import Union
 
 class LoggerFactory:
     @staticmethod
-    def create(log_level: Union[int, str]):
+    def configure(log_level: Union[int, str]) -> logging.Logger:
         logger = logging.getLogger()
         logging.basicConfig()
         logger.setLevel(log_level)
         return logger
 
     @staticmethod
-    def create_std_out(log_level: int = 10):
+    def configure_std_out(log_level: int = 10) -> logging.Logger:
         logger = logging.getLogger()
         logging.basicConfig()
         logger.setLevel(log_level)

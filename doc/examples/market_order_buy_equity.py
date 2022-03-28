@@ -6,15 +6,15 @@ from hargreaves.account import AccountType
 from hargreaves.config.loader import ConfigLoader
 from hargreaves.journey.clients import WebSessionManagerFactory
 from hargreaves.search import InvestmentTypes
-from hargreaves.trade.market.models import MarketOrder
-from hargreaves.trade.models import OrderPositionType, OrderAmountType
+from hargreaves.orders.market.models import MarketOrder
+from hargreaves.orders.models import OrderPositionType, OrderAmountType
 from hargreaves.utils.logging import LoggerFactory
 
 if __name__ == '__main__':
 
-    logger = LoggerFactory.create(logging.DEBUG)
+    logger = LoggerFactory.configure(logging.DEBUG)
 
-    config = ConfigLoader(logger).load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    config = ConfigLoader().load_api_config(str(Path(__file__).parent) + "/secrets.json")
 
     # UK
     # stock_ticker = 'PDG'
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     stock_quantity = 50  # +/- £86.19 @ 2.09 USD
     investment_types = [InvestmentTypes.OVERSEAS]
 
-    web_session_manager = WebSessionManagerFactory.create_with_file_storage(logger)
+    web_session_manager = WebSessionManagerFactory.create_with_file_storage()
     try:
         web_session_manager.start_session(config)
 

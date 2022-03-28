@@ -2,8 +2,7 @@ import http
 
 from hargreaves.session.clients import SessionClient
 from hargreaves.utils.logging import LoggerFactory
-from hargreaves.utils.timings import MockTimeService
-from hargreaves.web.mocks import MockWebSession
+from hargreaves.web.mocks import MockWebSession, MockTimeService
 
 
 def test_session_keepalive():
@@ -11,7 +10,7 @@ def test_session_keepalive():
     session_hl_vt = '460029272'
 
     with MockWebSession() as web_session:
-        logger = LoggerFactory.create_std_out()
+        LoggerFactory.configure_std_out()
         time_service = MockTimeService()
 
         web_session.mock_get(
@@ -31,5 +30,5 @@ def test_session_keepalive():
             status_code=http.HTTPStatus.OK
         )
 
-        client = SessionClient(logger, web_session, time_service)
+        client = SessionClient(web_session, time_service)
         client.session_keepalive(sedol_code, session_hl_vt)

@@ -1,30 +1,29 @@
 import json
-from logging import Logger
-from typing import List, Optional
+import logging
+from typing import List
 
 from hargreaves.web.session import IWebSession, WebRequestType
 from .errors import SearchFilterError
 from .models import InvestmentTypes, SearchResult
-from ..utils.timings import ITimeService
+from ..web.timings import ITimeService
+
+logger = logging.getLogger(__name__)
 
 
 class SecuritySearchClient:
-    _logger: Logger
     _web_session: IWebSession
     _time_service: ITimeService
 
     def __init__(self,
-                 logger: Logger,
                  web_session: IWebSession,
                  time_service: ITimeService
                  ):
-        self._logger = logger
         self._web_session = web_session
         self._time_service = time_service
 
     def investment_search(self, search_string: str, investment_types: list) -> [SearchResult]:
 
-        self._logger.debug("Searching Securities ...")
+        logger.debug("Searching Securities ...")
 
         self._time_service.sleep()
 

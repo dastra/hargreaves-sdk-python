@@ -8,21 +8,16 @@ from pathlib import Path
 
 from urllib3.util import parse_url
 
+from hargreaves.analysis import DEFAULT_EXCLUDE
 from hargreaves.analysis.clients import HAR2MarkdownRenderer
 from hargreaves.utils.files import FileHelper
 from hargreaves.utils.logging import LoggerFactory
 
 
+logger = logging.getLogger(__name__)
+
+
 class Har2MdController:
-    DEFAULT_EXCLUDE = '.js,googleads,facebook,youtube,chartbeat,.jpg,.ico,.css,bing.com,fonts,twitter,google.com,' \
-                      'google.co.uk,.svg,appdynamics.com,.gif,.png,.omtrdc.net,demdex.net,cm.everesttech.net,' \
-                      'fundslibrary.co.uk,t.co,www.googletagmanager.com,ytimg.com,ajax/menus,lightstreamer,' \
-                      'loginstatus,cms_services.php'
-
-    _logger: logging.Logger
-
-    def __init__(self, logger: logging.Logger):
-        self._logger = logger
 
     def load_entries(self, file_path: str):
         har_txt = FileHelper.read_file_contents(file_path)
@@ -70,7 +65,7 @@ class Har2MdController:
             if response_content is not None:
                 FileHelper.write_file(str(content_file_path), response_content)
             elif entry['response']['content'].get('size') > 0:
-                self._logger.warning(f"response content is missing for '{content_file_path}'")
+                logger.warning(f"response content is missing for '{content_file_path}'")
 
     def exec(self, input_file: str, output_folder: str, exclude_patterns: list):
 
@@ -80,25 +75,25 @@ class Har2MdController:
         content_folder = str(Path.joinpath(Path(output_folder), 'content'))
 
         if Path(output_folder).exists():
-            self._logger.debug(f"Deleting folder ({output_folder}) ...")
+            logger.debug(f"Deleting folder ({output_folder}) ...")
             shutil.rmtree(output_folder)
 
-        self._logger.debug(f"Creating folder ({output_folder} ...")
+        logger.debug(f"Creating folder ({output_folder} ...")
         os.makedirs(output_folder)
 
-        self._logger.debug(f"Creating folder ({content_folder} ...")
+        logger.debug(f"Creating folder ({content_folder} ...")
         os.makedirs(content_folder)
 
         all_entries = self.load_entries(input_file)
         filtered_entries = self.filter_entries(all_entries, exclude_patterns)
         self.prepare(filtered_entries)
 
-        self._logger.debug(f"Filtered {len(all_entries)} entries down to {len(filtered_entries)} ...")
+        logger.debug(f"Filtered {len(all_entries)} entries down to {len(filtered_entries)} ...")
 
-        self._logger.debug(f"Creating content files ...")
+        logger.debug(f"Creating content files ...")
         self.create_content_files(content_folder, filtered_entries)
 
-        renderer = HAR2MarkdownRenderer(self._logger)
+        renderer = HAR2MarkdownRenderer()
         rendered_txt = renderer.rendering(http_entries=filtered_entries)
 
         md_output_file = Path.joinpath(Path(output_folder), 'output.md')
@@ -118,7 +113,7 @@ if __name__ == "__main__":
         '-e',
         '--exclude',
         action='store',
-        default=Har2MdController.DEFAULT_EXCLUDE,
+        default=DEFAULT_EXCLUDE,
         type=str,
         help=(
             'CSV list of URL patterns to exclude'
@@ -148,7 +143,7 @@ if __name__ == "__main__":
         if args.output is None else args.output
     is_verbose = args.v
 
-    my_logger = LoggerFactory.create(logging.DEBUG if is_verbose else logging.INFO)
+    LoggerFactory.configure(logging.DEBUG if is_verbose else logging.INFO)
 
-    controller = Har2MdController(my_logger)
+    controller = Har2MdController()
     controller.exec(str(input_file_path), output_folder_path, exclude_pattern_csv)

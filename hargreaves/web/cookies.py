@@ -4,7 +4,7 @@ from random import randint
 
 from requests import cookies
 
-from hargreaves.utils.timings import TimeService
+from hargreaves.web.timings import TimeService
 
 
 class HLCookieHelper:
@@ -37,7 +37,7 @@ class HLCookieHelper:
         cookie_value = {
             # when the timeout will occur for the overall session # default seems to be 14 min (840000 sec)
             "tom": time_service.get_current_time_as_epoch_time(offset_minutes=14) if is_logged_in else 0,
-            "ot": "900",  # onlineTimeoutSeconds (15 mins)
+            "ot": "900",  # onlineTimeoutSeconds (15 minutes)
             "tos": 0,
             "smc": 0,
             random_window_name: {

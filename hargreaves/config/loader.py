@@ -1,16 +1,17 @@
 import json
+import logging
 import os
-from logging import Logger
 from pathlib import Path
 
 from hargreaves.config.models import ApiConfiguration
 
+logger = logging.getLogger(__name__)
+
 
 class ConfigLoader:
-    _logger: Logger
 
-    def __init__(self, logger: Logger):
-        self._logger = logger
+    def __init__(self):
+        pass
 
     def load_api_config(self, api_secrets_filename=None):
         """
@@ -21,7 +22,7 @@ class ConfigLoader:
         # in the secrets.json file and environment variables e.g. username is username (secrets.json) and
         # HL_USERNAME (env variable)
 
-        self._logger.debug(f"ConfigLoader::load_api_config(api_secrets_filename={api_secrets_filename}) - Start")
+        logger.debug(f"ConfigLoader::load_api_config(api_secrets_filename={api_secrets_filename}) - Start")
 
         with open(Path(__file__).parent.joinpath('config_keys.json')) as json_file:
             config_keys = json.load(json_file)
@@ -29,7 +30,7 @@ class ConfigLoader:
         # If there is a secrets file specified and it exists get the details from it
         if api_secrets_filename is not None and os.path.exists(api_secrets_filename) and os.path.isfile(
                 api_secrets_filename):
-            self._logger.debug(f"loading secrets file {api_secrets_filename}...")
+            logger.debug(f"loading secrets file {api_secrets_filename}...")
             with open(api_secrets_filename, "r") as secrets:
                 config = json.load(secrets)
         # If there is a secrets file specified and it does not exist log a warning to indicate that the specified file
@@ -37,13 +38,13 @@ class ConfigLoader:
         elif api_secrets_filename is not None and (
                 not os.path.exists(api_secrets_filename) or not os.path.isfile(api_secrets_filename)):
             raise ValueError(f"Provided secrets file of {api_secrets_filename} can not be found, please ensure you "
-                            f"have correctly specified the full path to the file or don't provide a secrets file to use "
-                            f"environment variables instead.")
+                             f"have correctly specified the full path to the file or don't provide a secrets file "
+                             f"to use environment variables instead.")
         # If no secrets file is specified just create an empty config
         else:
             config = {}
 
-        self._logger.debug(f"retrieve env values...")
+        logger.debug(f"retrieve env values...")
         # Populate the values for the api configuration preferring the secrets file over the environment variables
         populated_api_config_values = {
             key: config.get(value["config"], os.getenv(value["env"], None)) for key, value in config_keys.items()
@@ -57,6 +58,6 @@ class ConfigLoader:
         # Create the ApiConfiguration
 
         api_config = ApiConfiguration(**populated_api_config_values)
-        self._logger.debug(f"ConfigLoader::load_api_config() - Done")
+        logger.debug(f"ConfigLoader::load_api_config() - Done")
 
         return api_config

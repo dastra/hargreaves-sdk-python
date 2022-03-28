@@ -1,14 +1,16 @@
 import copy
+import logging
 from datetime import datetime
 from http.client import RemoteDisconnected
 from http.cookiejar import CookieJar
-from logging import Logger
 
 import requests
 from requests import Response, Request
 
 from hargreaves.web.headers import IHeaderFactory
 from hargreaves.web.requests import WebRequestType, RequestSessionContext, HttpRequestEntry
+
+logger = logging.getLogger(__name__)
 
 
 class IWebSession():
@@ -28,19 +30,16 @@ class IWebSession():
 
 
 class WebSession(IWebSession):
-    _logger: Logger
     _session: requests.Session
     _request_session_context: RequestSessionContext
     _header_factory: IHeaderFactory
     _retry_count: int
 
     def __init__(self,
-                 logger: Logger,
                  session: requests.Session,
                  request_session_context: RequestSessionContext,
                  header_factory: IHeaderFactory,
                  retry_count: int = 3):
-        self._logger = logger
         self._session = session
         self._request_session_context = request_session_context
         self._header_factory = header_factory
@@ -56,6 +55,7 @@ class WebSession(IWebSession):
 
         prepared_req = session.prepare_request(request)
 
+        response = None
         start_time = datetime.now()
         remaining_retries = self._retry_count
         should_retry = True
@@ -65,7 +65,7 @@ class WebSession(IWebSession):
                 should_retry = False
             except RemoteDisconnected:
                 remaining_retries = remaining_retries - 1
-                self._logger.warning(f"RemoteDisconnected error (remaining_retries = {remaining_retries}")
+                logger.warning(f"RemoteDisconnected error (remaining_retries = {remaining_retries}")
                 if remaining_retries <= 0:
                     raise RemoteDisconnected
 
@@ -97,7 +97,7 @@ class WebSession(IWebSession):
 
     def get(self, url: str, request_type: WebRequestType = WebRequestType.Document,
             params=None, headers=None) -> Response:
-        self._logger.debug(f"GET: {url}")
+        logger.debug(f"GET: {url}")
         additional_headers = headers if headers is not None else {}
 
         if request_type == WebRequestType.XHR:
@@ -110,7 +110,7 @@ class WebSession(IWebSession):
 
     def post(self, url: str, request_type: WebRequestType = WebRequestType.Document,
              data=None, headers=None) -> Response:
-        self._logger.debug(f"POST: {url}")
+        logger.debug(f"POST: {url}")
         additional_headers = headers if headers is not None else {}
         if request_type == WebRequestType.XHR:
             merged_headers = self._header_factory.create_for_xhr_post(url, additional_headers, data)

@@ -8,7 +8,8 @@ from hargreaves.utils.logging import LoggerFactory
 
 
 def test_load_config_ok():
-    loader = ConfigLoader(LoggerFactory.create_std_out())
+    LoggerFactory.configure_std_out()
+    loader = ConfigLoader()
     config = loader.load_api_config(str(Path(__file__).parent) + "/files/valid.json")
 
     assert config.username == 'tuser'
@@ -18,19 +19,22 @@ def test_load_config_ok():
 
 
 def test_load_config_file_not_found():
-    loader = ConfigLoader(LoggerFactory.create_std_out())
+    LoggerFactory.configure_std_out()
+    loader = ConfigLoader()
     with pytest.raises(ValueError, match=r"Provided secrets file of"):
         loader.load_api_config(str(Path(__file__).parent) + "/not_found.json")
 
 
 def test_load_config_missing():
-    loader = ConfigLoader(LoggerFactory.create_std_out())
+    LoggerFactory.configure_std_out()
+    loader = ConfigLoader()
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
         loader.load_api_config(str(Path(__file__).parent) + "/files/invalid.json")
 
 
 def test_load_config_bad_structure():
-    loader = ConfigLoader(LoggerFactory.create_std_out())
+    LoggerFactory.configure_std_out()
+    loader = ConfigLoader()
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
         loader.load_api_config(str(Path(__file__).parent) + "/files/bad_structure.json")
 
@@ -43,7 +47,8 @@ def test_environment_variables_ok():
     os.environ["HL_DATE_OF_BIRTH"] = "010130"
     os.environ["HL_SECURE_NUMBER"] = "654321"
 
-    loader = ConfigLoader(LoggerFactory.create_std_out())
+    LoggerFactory.configure_std_out()
+    loader = ConfigLoader()
     config = loader.load_api_config()
 
     os.environ.clear()
@@ -56,6 +61,8 @@ def test_environment_variables_ok():
 
 
 def test_environment_variables_missing():
-    loader = ConfigLoader(LoggerFactory.create_std_out())
+    LoggerFactory.configure_std_out()
+    loader = ConfigLoader()
+
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
         loader.load_api_config()

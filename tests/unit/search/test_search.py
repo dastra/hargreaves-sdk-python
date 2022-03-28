@@ -7,8 +7,7 @@ from hargreaves.search.clients import parse_search_results, SecuritySearchClient
 from hargreaves.search.errors import SearchFilterError
 from hargreaves.search.models import InvestmentTypes, SearchResult, InvestmentCategoryTypes
 from hargreaves.utils.logging import LoggerFactory
-from hargreaves.utils.timings import MockTimeService
-from hargreaves.web.mocks import MockWebSession
+from hargreaves.web.mocks import MockWebSession, MockTimeService
 
 
 class SearchResultBuilder():
@@ -55,7 +54,7 @@ def test_submit_search_request_for_shares():
     search_results_found_jsonp = Path(Path(__file__).parent / 'files/search-results-found.jsonp').read_text()
 
     with MockWebSession() as web_session:
-        logger = LoggerFactory.create_std_out()
+        LoggerFactory.configure_std_out()
         time_service = MockTimeService()
 
         web_session.mock_get(
@@ -76,7 +75,7 @@ def test_submit_search_request_for_shares():
             status_code=http.HTTPStatus.OK
         )
 
-        client = SecuritySearchClient(logger, web_session, time_service)
+        client = SecuritySearchClient(web_session, time_service)
         search_results = client.investment_search(search_string, investment_types)
 
         assert len(search_results) == 2
@@ -88,7 +87,7 @@ def test_submit_search_request_for_all():
     search_results_found_jsonp = Path(Path(__file__).parent / 'files/search-results-found.jsonp').read_text()
 
     with MockWebSession() as web_session:
-        logger = LoggerFactory.create_std_out()
+        LoggerFactory.configure_std_out()
         time_service = MockTimeService()
         # https://online.hl.co.uk/ajaxx/stocks.php?&callback=jsonp1648387997533&pid=1648388007478&sq=fb&filters=&offset=0&instance=&format=jsonp
         web_session.mock_get(
@@ -109,7 +108,7 @@ def test_submit_search_request_for_all():
             status_code=http.HTTPStatus.OK
         )
 
-        client = SecuritySearchClient(logger, web_session, time_service)
+        client = SecuritySearchClient(web_session, time_service)
         search_results = client.investment_search(search_string, investment_types)
 
         assert len(search_results) == 2
@@ -231,4 +230,3 @@ def test_security_filter_invalid_cases():
         security_filter(search_results=search_results, sedol_code='XXX')
     with pytest.raises(SearchFilterError, match='Could not find security, results filtered to 2'):
         security_filter(search_results=search_results, stock_ticker='2FB')
-
