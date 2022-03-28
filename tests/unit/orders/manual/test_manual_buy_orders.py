@@ -8,8 +8,12 @@ from hargreaves.orders.manual.clients import ManualOrderClient
 from hargreaves.orders.manual.models import ManualOrder, ManualOrderConfirmation, ManualOrderPosition
 from hargreaves.orders.manual.parsers import parse_manual_order_confirmation_page
 from hargreaves.orders.models import OrderPositionType, OrderAmountType
-from hargreaves.utils.logging import LoggerFactory
-from hargreaves.web.mocks import MockWebSession, MockTimeService
+from hargreaves.utils import clock
+from hargreaves.utils.logging import LogHelper
+from hargreaves.request_tracker.mocks import MockWebSession
+
+LogHelper.configure_std_out()
+clock.freeze_time()
 
 
 def test_parse_manual_buy_order_confirmation_uk_equity_ok():
@@ -76,7 +80,6 @@ def test_submit_manual_buy_order_confirmation_uk_equity():
         earmark_orders_confirm=False)
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
 
         expected_params = {
             'hl_vt': "2491884284",
@@ -110,11 +113,10 @@ def test_submit_manual_buy_order_confirmation_uk_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        time_service = MockTimeService()
         session_client = MockSessionClient()
-        client = ManualOrderClient(time_service, web_session, session_client)
+        client = ManualOrderClient(session_client)
 
-        order_confirmation = client.submit_order(order=order)
+        order_confirmation = client.submit_order(web_session=web_session, order=order)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
@@ -156,7 +158,6 @@ def test_submit_manual_buy_order_confirmation_us_equity():
         earmark_orders_confirm=False)
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
 
         expected_params = {
             'hl_vt': "3430162972",
@@ -190,11 +191,10 @@ def test_submit_manual_buy_order_confirmation_us_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        time_service = MockTimeService()
         session_client = MockSessionClient()
-        client = ManualOrderClient(time_service, web_session, session_client)
+        client = ManualOrderClient(session_client)
 
-        order_confirmation = client.submit_order(order=order)
+        order_confirmation = client.submit_order(web_session=web_session, order=order)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param

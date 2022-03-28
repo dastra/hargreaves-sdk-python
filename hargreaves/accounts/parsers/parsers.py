@@ -5,7 +5,7 @@ from typing import List
 from bs4 import BeautifulSoup
 from io import StringIO
 
-from hargreaves.account.models import AccountSummary, AccountDetail, Investment
+from hargreaves.accounts.models import AccountSummary, AccountDetail, Investment
 
 
 def parse_account_list(my_accounts_html: str) -> List[AccountSummary]:

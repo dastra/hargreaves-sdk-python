@@ -3,7 +3,7 @@ import sys
 from typing import Union
 
 
-class LoggerFactory:
+class LogHelper:
     @staticmethod
     def configure(log_level: Union[int, str]) -> logging.Logger:
         logger = logging.getLogger()

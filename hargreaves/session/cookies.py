@@ -1,10 +1,8 @@
 import json
 from http.cookiejar import CookieJar
 from random import randint
-
 from requests import cookies
-
-from hargreaves.web.timings import TimeService
+from hargreaves.utils import clock
 
 
 class HLCookieHelper:
@@ -32,17 +30,16 @@ class HLCookieHelper:
         As per https://online.hl.co.uk/global/scr/timeout.js?v=2.9
         :return:
         """
-        time_service = TimeService()
         random_window_name = f"HLWN{randint(520000, 750000)}"
         cookie_value = {
             # when the timeout will occur for the overall session # default seems to be 14 min (840000 sec)
-            "tom": time_service.get_current_time_as_epoch_time(offset_minutes=14) if is_logged_in else 0,
+            "tom": clock.get_current_time_as_epoch_time(offset_minutes=14) if is_logged_in else 0,
             "ot": "900",  # onlineTimeoutSeconds (15 minutes)
             "tos": 0,
             "smc": 0,
             random_window_name: {
                 # when the timeout will occur for the window # default seems to be 14 min (840000 sec)
-                "to": time_service.get_current_time_as_epoch_time(offset_minutes=14),
+                "to": clock.get_current_time_as_epoch_time(offset_minutes=14),
                 "li": int(is_logged_in),   # logged-in
                 "im": 1,   # in_MAAD
                 "ia": 0,   # Is the window in an application?
@@ -50,7 +47,7 @@ class HLCookieHelper:
                 "rp": 0,   # retirement plannet
                 "sm": 0,   # is current page the SMC compose page
                 "lp": 0,   # starting value 0, not sure when it becomes 1
-                "lu": time_service.get_current_time_as_epoch_time()    # last updated
+                "lu": clock.get_current_time_as_epoch_time()    # last updated
             }
         }
         encoded_value = json.dumps(cookie_value)

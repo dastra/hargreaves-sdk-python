@@ -1,7 +1,7 @@
 import random
 from urllib.parse import urlencode
 
-from hargreaves.web.requests import RequestSessionContext, UrlHelper
+from hargreaves.request_tracker.requests import RequestSessionContext, UrlHelper
 
 
 class DictionaryHelper:

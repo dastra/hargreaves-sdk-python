@@ -1,8 +1,12 @@
 import http
 
 from hargreaves.session.clients import SessionClient
-from hargreaves.utils.logging import LoggerFactory
-from hargreaves.web.mocks import MockWebSession, MockTimeService
+from hargreaves.utils import clock
+from hargreaves.utils.logging import LogHelper
+from hargreaves.request_tracker.mocks import MockWebSession
+
+LogHelper.configure_std_out()
+clock.freeze_time()
 
 
 def test_session_keepalive():
@@ -10,8 +14,6 @@ def test_session_keepalive():
     session_hl_vt = '460029272'
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
-        time_service = MockTimeService()
 
         web_session.mock_get(
             url='https://online.hl.co.uk/ajaxx/user.php',
@@ -19,7 +21,7 @@ def test_session_keepalive():
                 'method': 'session_timeout_handler',
                 'keepalive': "1",
                 'format': 'jsonp',
-                'jsoncallback': f"jsonp{time_service.get_current_time_as_epoch_time()}",
+                'jsoncallback': f"jsonp{clock.get_current_time_as_epoch_time()}",
                 'hl_vt': session_hl_vt,
                 'initialise': 'true'
             },
@@ -30,5 +32,8 @@ def test_session_keepalive():
             status_code=http.HTTPStatus.OK
         )
 
-        client = SessionClient(web_session, time_service)
-        client.session_keepalive(sedol_code, session_hl_vt)
+        client = SessionClient()
+        client.session_keepalive(
+            web_session=web_session,
+            sedol_code=sedol_code,
+            session_hl_vt=session_hl_vt)

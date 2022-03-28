@@ -5,7 +5,7 @@ import pytest
 
 from hargreaves.authentication.login.step_one import *
 from hargreaves.config.models import ApiConfiguration
-from hargreaves.web.mocks import MockWebSession
+from hargreaves.request_tracker.mocks import MockWebSession
 
 HL_VT = '1670432745'
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 
-from hargreaves.account.clients import *
+from hargreaves.accounts.clients import *
 
 
 def test_parse_account_list():

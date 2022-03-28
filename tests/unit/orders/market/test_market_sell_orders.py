@@ -7,9 +7,13 @@ from hargreaves.session.mocks import MockSessionClient
 from hargreaves.orders.market.clients import MarketOrderClient
 from hargreaves.orders.market.models import MarketOrderQuote, MarketOrderConfirmation
 from hargreaves.orders.market.parsers import parse_market_order_quote_page
+from hargreaves.utils import clock
 from hargreaves.utils.input import InputHelper
-from hargreaves.utils.logging import LoggerFactory
-from hargreaves.web.mocks import MockWebSession, MockTimeService
+from hargreaves.utils.logging import LogHelper
+from hargreaves.request_tracker.mocks import MockWebSession
+
+LogHelper.configure_std_out()
+clock.freeze_time()
 
 
 def test_parse_market_sell_order_quote_uk_equity():
@@ -82,7 +86,6 @@ def test_execute_market_sell_order_confirmation_uk_equity():
     )
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
 
         expected_params = {
             'hl_vt': '2422340661',
@@ -96,11 +99,11 @@ def test_execute_market_sell_order_confirmation_uk_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        time_service = MockTimeService()
-        session_client = MockSessionClient()
-        client = MarketOrderClient(time_service, web_session, session_client)
 
-        order_confirmation = client.execute_order(market_order_quote=market_order_quote)
+        session_client = MockSessionClient()
+        client = MarketOrderClient(session_client)
+
+        order_confirmation = client.submit_order(web_session=web_session, order_quote=market_order_quote)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
@@ -132,7 +135,6 @@ def test_execute_market_sell_order_confirmation_uk_equity_2():
     )
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
 
         expected_params = {
             'hl_vt': '2422340661',
@@ -146,11 +148,11 @@ def test_execute_market_sell_order_confirmation_uk_equity_2():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        time_service = MockTimeService()
-        session_client = MockSessionClient()
-        client = MarketOrderClient(time_service, web_session, session_client)
 
-        order_confirmation = client.execute_order(market_order_quote=market_order_quote)
+        session_client = MockSessionClient()
+        client = MarketOrderClient(session_client)
+
+        order_confirmation = client.submit_order(web_session=web_session, order_quote=market_order_quote)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param
@@ -182,7 +184,6 @@ def test_execute_market_sell_order_confirmation_us_equity():
     )
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
 
         expected_params = {
             'hl_vt': '4288007232',
@@ -196,11 +197,11 @@ def test_execute_market_sell_order_confirmation_us_equity():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        time_service = MockTimeService()
-        session_client = MockSessionClient()
-        client = MarketOrderClient(time_service, web_session, session_client)
 
-        order_confirmation = client.execute_order(market_order_quote=market_order_quote)
+        session_client = MockSessionClient()
+        client = MarketOrderClient(session_client)
+
+        order_confirmation = client.submit_order(web_session=web_session, order_quote=market_order_quote)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param

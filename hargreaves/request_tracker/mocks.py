@@ -1,17 +1,13 @@
-import datetime
 import logging
 from http.cookiejar import CookieJar
-from random import randint
 from urllib.parse import urlencode
 
 import requests
 from requests import Response, Session
 from requests_mock import Mocker
 
-from hargreaves.web.requests import WebRequestType
-from hargreaves.web.session import IWebSession
-from hargreaves.web.timings import ITimeService
-
+from .requests import WebRequestType
+from .session import IWebSession
 
 logger = logging.getLogger(__name__)
 
@@ -69,24 +65,3 @@ class MockWebSession(IWebSession):
     @property
     def cookies(self) -> CookieJar:
         return self._session.cookies
-
-
-class MockTimeService(ITimeService):
-    """
-    Freezes time on init
-    """
-    _current_time: datetime
-
-    def __init__(self):
-        self._current_time = datetime.datetime.now()
-
-    def get_current_time(self) -> datetime:
-        return self._current_time
-
-    def get_current_time_as_epoch_time(self, offset_minutes: int = 0, offset_seconds: int = 0) -> int:
-        relative_time = (self._current_time + datetime.timedelta(minutes=offset_minutes, seconds=offset_seconds))
-        return round(relative_time.timestamp() * 1000)
-
-    def sleep(self, minimum: int = 1, maximum: int = 2):
-        sleep_time = randint(minimum, maximum)
-        logger.debug(f"Mock Pausing for {sleep_time} seconds ...")

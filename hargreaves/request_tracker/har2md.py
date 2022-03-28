@@ -8,10 +8,10 @@ from pathlib import Path
 
 from urllib3.util import parse_url
 
-from hargreaves.analysis import DEFAULT_EXCLUDE
-from hargreaves.analysis.clients import HAR2MarkdownRenderer
+from hargreaves.request_tracker import DEFAULT_EXCLUDE
+from hargreaves.request_tracker.renderers import HAR2MarkdownRenderer
 from hargreaves.utils.files import FileHelper
-from hargreaves.utils.logging import LoggerFactory
+from hargreaves.utils.logging import LogHelper
 
 
 logger = logging.getLogger(__name__)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         if args.output is None else args.output
     is_verbose = args.v
 
-    LoggerFactory.configure(logging.DEBUG if is_verbose else logging.INFO)
+    LogHelper.configure(logging.DEBUG if is_verbose else logging.INFO)
 
     controller = Har2MdController()
     controller.exec(str(input_file_path), output_folder_path, exclude_pattern_csv)

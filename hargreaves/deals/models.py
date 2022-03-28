@@ -1,6 +1,6 @@
 from typing import Optional
 
-from hargreaves.orders.models import OrderPositionType, IOrderConfirmation, OrderAmountType
+from hargreaves.orders.models import OrderPositionType, IOrderConfirmation, OrderRequest
 
 
 class DealRequest():
@@ -70,41 +70,25 @@ class DealRequest():
 
 
 class DealResult():
-    _request: DealRequest
-    _result: IOrderConfirmation
+    _order_request: OrderRequest
+    _order_response: IOrderConfirmation
 
-    def __init__(self, request: DealRequest, result: IOrderConfirmation):
-        self._request = request
-        self._result = result
-
-    @property
-    def request(self):
-        return self._request
+    def __init__(self,
+                 order_request: OrderRequest,
+                 order_confirmation: IOrderConfirmation):
+        self._order_request = order_request
+        self._order_response = order_confirmation
 
     @property
-    def result(self):
-        return self._result
+    def order_request(self):
+        return self._order_request
+
+    @property
+    def order_result(self):
+        return self._order_response
 
     def __str__(self):
         return f"""DealResult[
-            request={self.request},
-            result={self.result}
+            order_request={self.order_request},
+            order_result={self.order_result}
         ]"""
-
-
-class PositionCalculator:
-    @staticmethod
-    def calculate(
-            position_type: OrderPositionType,
-            position_percentage: float,
-            account_value: float,
-            units_held: float
-    ):
-        if position_type == OrderPositionType.Buy:
-            amount_type = OrderAmountType.Value
-            order_quantity = round(account_value * (position_percentage / 100), 2)
-        else:
-            amount_type = OrderAmountType.Quantity
-            order_quantity = int(round(units_held * (position_percentage / 100), 0))
-
-        return (amount_type, order_quantity)

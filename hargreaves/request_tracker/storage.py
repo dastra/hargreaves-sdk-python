@@ -6,12 +6,29 @@ from pathlib import Path
 
 import requests
 
-from hargreaves.analysis.clients import HARHttpRequestEntryRenderer
-from hargreaves.config import ApiConfiguration
-from hargreaves.web.session import RequestSessionContext
-from hargreaves.web.storage import ICookieStorage, IRequestSessionStorage
+from .renderers import HARHttpRequestEntryRenderer
+from hargreaves.config.models import ApiConfiguration
+from .session import RequestSessionContext
 
 logger = logging.getLogger(__name__)
+
+
+class ICookieStorage:
+
+    def load(self, session: requests.Session):
+        pass
+
+    def save(self, cookiejar: CookieJar):
+        pass
+
+
+class IRequestSessionStorage:
+
+    def write(self, request_session_context: RequestSessionContext, api_config: ApiConfiguration):
+        pass
+
+    def get_location(self) -> str:
+        pass
 
 
 class StringHelper:

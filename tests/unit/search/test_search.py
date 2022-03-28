@@ -6,8 +6,12 @@ import pytest
 from hargreaves.search.clients import parse_search_results, SecuritySearchClient, security_filter
 from hargreaves.search.errors import SearchFilterError
 from hargreaves.search.models import InvestmentTypes, SearchResult, InvestmentCategoryTypes
-from hargreaves.utils.logging import LoggerFactory
-from hargreaves.web.mocks import MockWebSession, MockTimeService
+from hargreaves.utils import clock
+from hargreaves.utils.logging import LogHelper
+from hargreaves.request_tracker.mocks import MockWebSession
+
+LogHelper.configure_std_out()
+clock.freeze_time()
 
 
 class SearchResultBuilder():
@@ -54,14 +58,12 @@ def test_submit_search_request_for_shares():
     search_results_found_jsonp = Path(Path(__file__).parent / 'files/search-results-found.jsonp').read_text()
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
-        time_service = MockTimeService()
 
         web_session.mock_get(
             url='https://online.hl.co.uk/ajaxx/stocks.php',
             params={
-                'callback': f"jsonp{time_service.get_current_time_as_epoch_time(offset_seconds=-10)}",
-                'pid': time_service.get_current_time_as_epoch_time(),
+                'callback': f"jsonp{clock.get_current_time_as_epoch_time(offset_seconds=-10)}",
+                'pid': clock.get_current_time_as_epoch_time(),
                 'sq': search_string,
                 'filters': excl_investment_types,
                 'offset': 0,
@@ -75,8 +77,11 @@ def test_submit_search_request_for_shares():
             status_code=http.HTTPStatus.OK
         )
 
-        client = SecuritySearchClient(web_session, time_service)
-        search_results = client.investment_search(search_string, investment_types)
+        client = SecuritySearchClient()
+        search_results = client.investment_search(
+            web_session=web_session,
+            search_string=search_string,
+            investment_types=investment_types)
 
         assert len(search_results) == 2
 
@@ -87,14 +92,12 @@ def test_submit_search_request_for_all():
     search_results_found_jsonp = Path(Path(__file__).parent / 'files/search-results-found.jsonp').read_text()
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
-        time_service = MockTimeService()
-        # https://online.hl.co.uk/ajaxx/stocks.php?&callback=jsonp1648387997533&pid=1648388007478&sq=fb&filters=&offset=0&instance=&format=jsonp
+
         web_session.mock_get(
             url='https://online.hl.co.uk/ajaxx/stocks.php',
             params={
-                'callback': f"jsonp{time_service.get_current_time_as_epoch_time(offset_seconds=-10)}",
-                'pid': time_service.get_current_time_as_epoch_time(),
+                'callback': f"jsonp{clock.get_current_time_as_epoch_time(offset_seconds=-10)}",
+                'pid': clock.get_current_time_as_epoch_time(),
                 'sq': search_string,
                 'filters': '',
                 'offset': 0,
@@ -108,8 +111,11 @@ def test_submit_search_request_for_all():
             status_code=http.HTTPStatus.OK
         )
 
-        client = SecuritySearchClient(web_session, time_service)
-        search_results = client.investment_search(search_string, investment_types)
+        client = SecuritySearchClient()
+        search_results = client.investment_search(
+            web_session=web_session,
+            search_string=search_string,
+            investment_types=investment_types)
 
         assert len(search_results) == 2
 

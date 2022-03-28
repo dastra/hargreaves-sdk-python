@@ -2,36 +2,36 @@ import json
 import logging
 from typing import List
 
-from hargreaves.web.session import IWebSession, WebRequestType
+from hargreaves.request_tracker.session import IWebSession, WebRequestType
 from .errors import SearchFilterError
 from .models import InvestmentTypes, SearchResult
-from ..web.timings import ITimeService
+from ..utils import clock
 
 logger = logging.getLogger(__name__)
 
 
-class SecuritySearchClient:
-    _web_session: IWebSession
-    _time_service: ITimeService
+class ISecuritySearchClient:
 
-    def __init__(self,
-                 web_session: IWebSession,
-                 time_service: ITimeService
-                 ):
-        self._web_session = web_session
-        self._time_service = time_service
+    def investment_search(self, web_session: IWebSession, search_string: str, investment_types: list) -> [SearchResult]:
+        pass
 
-    def investment_search(self, search_string: str, investment_types: list) -> [SearchResult]:
+
+class SecuritySearchClient(ISecuritySearchClient):
+
+    def __init__(self):
+        pass
+
+    def investment_search(self, web_session: IWebSession, search_string: str, investment_types: list) -> [SearchResult]:
 
         logger.debug("Searching Securities ...")
 
-        self._time_service.sleep()
+        clock.sleep_random()
 
         # pid is the time in milliseconds since the epoch
-        pid = self._time_service.get_current_time_as_epoch_time()
+        pid = clock.get_current_time_as_epoch_time()
 
         # roughly 10 seconds before PID (probably when search page was loaded)
-        callback = f"jsonp{self._time_service.get_current_time_as_epoch_time(offset_seconds=-10)}",
+        callback = f"jsonp{clock.get_current_time_as_epoch_time(offset_seconds=-10)}",
 
         # the filters param is actually a list of investment types to be excluded,
         # so we need to reverse what was passed in (except when it's ALL, then the filter is blank)
@@ -45,7 +45,7 @@ class SecuritySearchClient:
             'Referer': 'https://online.hl.co.uk/my-accounts/stock_and_fund_search/action/deal'
         }
 
-        results_jsonp = self._web_session.get(
+        results_jsonp = web_session.get(
             url=f'https://online.hl.co.uk/ajaxx/stocks.php',
             request_type=WebRequestType.XHR,
             params={

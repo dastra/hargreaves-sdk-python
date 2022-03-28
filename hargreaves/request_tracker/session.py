@@ -8,8 +8,9 @@ from time import sleep
 import requests
 from requests import Response, Request
 
-from hargreaves.web.headers import IHeaderFactory
-from hargreaves.web.requests import WebRequestType, RequestSessionContext, HttpRequestEntry
+from .headers import IHeaderFactory, HeaderFactory
+from .requests import WebRequestType, RequestSessionContext, HttpRequestEntry
+from .storage import ICookieStorage
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,11 @@ class IWebSession():
     # noinspection PyPropertyDefinition
     @property
     def cookies(self) -> CookieJar:
+        pass
+
+    # noinspection PyPropertyDefinition
+    @property
+    def request_session_context(self) -> RequestSessionContext:
         pass
 
 
@@ -50,7 +56,11 @@ class WebSession(IWebSession):
     def cookies(self) -> CookieJar:
         return self._session.cookies
 
-    def __exec_request(self, request: requests.Request):
+    @property
+    def request_session_context(self) -> RequestSessionContext:
+        return self._request_session_context
+
+    def _exec_request(self, request: requests.Request):
         session = self._session
         request_cookies = copy.deepcopy(session.cookies)
 
@@ -110,7 +120,7 @@ class WebSession(IWebSession):
             merged_headers = self._header_factory.create_for_doc_get(url, additional_headers)
 
         req = Request(method='GET', url=url, params=params, headers=merged_headers)
-        return self.__exec_request(req)
+        return self._exec_request(req)
 
     def post(self, url: str, request_type: WebRequestType = WebRequestType.Document,
              data=None, headers=None) -> Response:
@@ -122,4 +132,19 @@ class WebSession(IWebSession):
             merged_headers = self._header_factory.create_for_form_post(url, additional_headers, data)
 
         req = Request(method='POST', url=url, data=data, headers=merged_headers)
-        return self.__exec_request(req)
+        return self._exec_request(req)
+
+
+class WebSessionFactory:
+    @staticmethod
+    def create(cookie_storage: ICookieStorage) -> IWebSession:
+        requests_session = requests.Session()
+
+        cookie_storage.load(requests_session)
+
+        request_session_context = RequestSessionContext()
+        header_factory = HeaderFactory.create(request_session_context)
+        return WebSession(
+            session=requests_session,
+            request_session_context=request_session_context,
+            header_factory=header_factory)

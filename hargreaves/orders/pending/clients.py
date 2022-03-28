@@ -7,25 +7,18 @@ from bs4 import BeautifulSoup
 from hargreaves.orders.pending.errors import CancelPendingOrderError
 from hargreaves.orders.pending.models import PendingOrder
 from hargreaves.orders.pending.parsers import parse_pending_orders
-from hargreaves.web.requests import WebRequestType
-from hargreaves.web.session import IWebSession
-from hargreaves.web.timings import ITimeService
+from hargreaves.utils import clock
+from hargreaves.request_tracker.requests import WebRequestType
+from hargreaves.request_tracker.session import IWebSession
 
 logger = logging.getLogger(__name__)
 
 
 class PendingOrdersClient:
-    _web_session: IWebSession
-    _time_service: ITimeService
 
-    def __init__(self,
-                 time_service: ITimeService,
-                 web_session: IWebSession
-                 ):
-        self._time_service = time_service
-        self._web_session = web_session
-
-    def get_pending_orders(self, account_id: int) -> List[PendingOrder]:
+    def get_pending_orders(self,
+                           web_session: IWebSession,
+                           account_id: int) -> List[PendingOrder]:
 
         logger.debug(f"Get pending order for account '{account_id}' ...")
 
@@ -33,18 +26,21 @@ class PendingOrdersClient:
             'Referer': f"https://online.hl.co.uk/my-accounts/account_summary/account/{account_id}"
         }
 
-        pending_order_html = self._web_session.get(
+        pending_order_html = web_session.get(
             url=f'https://online.hl.co.uk/my-accounts/pending_orders/account/{account_id}',
             request_type=WebRequestType.Document,
             headers=headers).text
 
         return parse_pending_orders(account_id=account_id, pending_orders_html=pending_order_html)
 
-    def cancel_pending_order(self, cancel_order_id: int, pending_orders: List[PendingOrder]) -> bool:
+    def cancel_pending_order(self,
+                             web_session: IWebSession,
+                             cancel_order_id:
+                             int, pending_orders: List[PendingOrder]) -> bool:
 
         logger.debug(f"Cancel Pending Order '{cancel_order_id}' ...")
 
-        self._time_service.sleep()
+        clock.sleep_random()
 
         account_id = pending_orders[0].account_id
 
@@ -67,9 +63,9 @@ class PendingOrdersClient:
 
         form["cancel"] = "cancel"
 
-        res = self._web_session.post("https://online.hl.co.uk/my-accounts/pending_orders",
-                                     request_type=WebRequestType.Document,
-                                     data=form, headers=request_headers)
+        res = web_session.post("https://online.hl.co.uk/my-accounts/pending_orders",
+                               request_type=WebRequestType.Document,
+                               data=form, headers=request_headers)
 
         confirm_html = res.text
 

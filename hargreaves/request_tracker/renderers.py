@@ -5,7 +5,7 @@ from typing import List
 
 import jinja2
 
-from hargreaves.web.session import HttpRequestEntry
+from .requests import HttpRequestEntry
 
 logger = logging.getLogger(__name__)
 

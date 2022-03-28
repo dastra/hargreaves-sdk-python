@@ -2,18 +2,19 @@ import logging
 import traceback
 from pathlib import Path
 
-from hargreaves.account import AccountType
-from hargreaves.config.loader import ConfigLoader
-from hargreaves.journey.clients import WebSessionManagerFactory
-from hargreaves.utils.logging import LoggerFactory
+from hargreaves import journey
+from hargreaves.accounts import AccountType
+
+from hargreaves.config import load_api_config
+from hargreaves.utils.logging import LogHelper
 
 if __name__ == '__main__':
 
-    logger = LoggerFactory.configure(logging.DEBUG)
+    logger = LogHelper.configure(logging.DEBUG)
 
-    config = ConfigLoader().load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    config = load_api_config(str(Path(__file__).parent) + "/secrets.json")
 
-    web_session_manager = WebSessionManagerFactory.create_with_file_storage()
+    web_session_manager = journey.create_default_session_manager()
     try:
         web_session_manager.start_session(config)
         accounts = web_session_manager.get_account_summary()

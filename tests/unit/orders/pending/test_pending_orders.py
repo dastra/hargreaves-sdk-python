@@ -5,9 +5,13 @@ from urllib.parse import urlencode
 from hargreaves.orders.pending.clients import PendingOrdersClient
 from hargreaves.orders.pending.models import PendingOrder
 from hargreaves.orders.pending.parsers import parse_pending_orders
+from hargreaves.utils import clock
 from hargreaves.utils.input import InputHelper
-from hargreaves.utils.logging import LoggerFactory
-from hargreaves.web.mocks import MockWebSession, MockTimeService
+from hargreaves.utils.logging import LogHelper
+from hargreaves.request_tracker.mocks import MockWebSession
+
+LogHelper.configure_std_out()
+clock.freeze_time()
 
 
 def test_parse_pending_orders_with_0_orders():
@@ -53,8 +57,6 @@ def test_send_search_request():
         read_text()
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
-        time_service = MockTimeService()
 
         web_session.mock_get(
             url=f'https://online.hl.co.uk/my-accounts/pending_orders/account/{account_id}',
@@ -65,8 +67,8 @@ def test_send_search_request():
             status_code=http.HTTPStatus.OK
         )
 
-        client = PendingOrdersClient(time_service, web_session)
-        search_results = client.get_pending_orders(account_id=account_id)
+        client = PendingOrdersClient()
+        search_results = client.get_pending_orders(web_session=web_session, account_id=account_id)
 
         assert len(search_results) == 2
 
@@ -104,8 +106,6 @@ def test_cancel_pending_order_1_out_of_2():
         )]
 
     with MockWebSession() as web_session:
-        LoggerFactory.configure_std_out()
-        time_service = MockTimeService()
 
         expected_params = {
             "action": "cancel",
@@ -130,8 +130,11 @@ def test_cancel_pending_order_1_out_of_2():
             response_text=confirm_html,
             status_code=http.HTTPStatus.OK
         )
-        client = PendingOrdersClient(time_service, web_session)
-        is_ok = client.cancel_pending_order(cancel_order_id=cancel_trade_id, pending_orders=pending_orders)
+        client = PendingOrdersClient()
+        is_ok = client.cancel_pending_order(
+            web_session=web_session,
+            cancel_order_id=cancel_trade_id,
+            pending_orders=pending_orders)
         actual_param = mock.request_history[0].text
 
         assert urlencode(expected_params) == actual_param

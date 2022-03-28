@@ -4,11 +4,13 @@ from pathlib import Path
 import pytest
 
 from hargreaves.config.loader import ConfigLoader
-from hargreaves.utils.logging import LoggerFactory
+from hargreaves.utils.logging import LogHelper
+
+
+LogHelper.configure_std_out()
 
 
 def test_load_config_ok():
-    LoggerFactory.configure_std_out()
     loader = ConfigLoader()
     config = loader.load_api_config(str(Path(__file__).parent) + "/files/valid.json")
 
@@ -19,21 +21,18 @@ def test_load_config_ok():
 
 
 def test_load_config_file_not_found():
-    LoggerFactory.configure_std_out()
     loader = ConfigLoader()
     with pytest.raises(ValueError, match=r"Provided secrets file of"):
         loader.load_api_config(str(Path(__file__).parent) + "/not_found.json")
 
 
 def test_load_config_missing():
-    LoggerFactory.configure_std_out()
     loader = ConfigLoader()
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
         loader.load_api_config(str(Path(__file__).parent) + "/files/invalid.json")
 
 
 def test_load_config_bad_structure():
-    LoggerFactory.configure_std_out()
     loader = ConfigLoader()
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
         loader.load_api_config(str(Path(__file__).parent) + "/files/bad_structure.json")
@@ -47,7 +46,7 @@ def test_environment_variables_ok():
     os.environ["HL_DATE_OF_BIRTH"] = "010130"
     os.environ["HL_SECURE_NUMBER"] = "654321"
 
-    LoggerFactory.configure_std_out()
+    LogHelper.configure_std_out()
     loader = ConfigLoader()
     config = loader.load_api_config()
 
@@ -61,7 +60,6 @@ def test_environment_variables_ok():
 
 
 def test_environment_variables_missing():
-    LoggerFactory.configure_std_out()
     loader = ConfigLoader()
 
     with pytest.raises(ValueError, match=r"^There are null values in the configuration"):
