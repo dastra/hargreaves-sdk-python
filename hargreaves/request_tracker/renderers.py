@@ -11,9 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 class HARHttpRequestEntryRenderer:
+    _sensitive_values: list
+    _sensitive_params: list
 
-    def __init__(self):
-        pass
+    def __init__(self,
+                 sensitive_values: list,
+                 sensitive_params: list,
+                 ):
+        self._sensitive_values = sensitive_values
+        self._sensitive_params = sensitive_params
 
     def safe_text_filter(self, txt_input: str):
         """Custom filter"""
@@ -23,7 +29,7 @@ class HARHttpRequestEntryRenderer:
             self,
             http_entries: List[HttpRequestEntry],
             template_dir: str = pathlib.Path(__file__).parent,
-            template_name: str = 'har.jinja2',
+            template_name: str = 'req2har.jinja2',
     ):
         """Generate HTTP Archive (HAR) using jinja2 template.
         :param template_dir:

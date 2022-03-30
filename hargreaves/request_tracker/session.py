@@ -142,7 +142,7 @@ class WebSessionFactory:
 
         cookie_storage.load(requests_session)
 
-        request_session_context = RequestSessionContext()
+        request_session_context = RequestSessionContext(default_referer='https://online.hl.co.uk/')
         header_factory = HeaderFactory.create(request_session_context)
         return WebSession(
             session=requests_session,

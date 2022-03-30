@@ -8,11 +8,14 @@ from pathlib import Path
 
 from urllib3.util import parse_url
 
-from hargreaves.request_tracker import DEFAULT_EXCLUDE
-from hargreaves.request_tracker.renderers import HAR2MarkdownRenderer
+from .renderers import HAR2MarkdownRenderer
 from hargreaves.utils.files import FileHelper
 from hargreaves.utils.logging import LogHelper
 
+DEFAULT_EXCLUDE = '.js,googleads,facebook,youtube,chartbeat,.jpg,.ico,.css,bing.com,fonts,twitter,google.com,' \
+                  'google.co.uk,.svg,appdynamics.com,.gif,.png,.omtrdc.net,demdex.net,cm.everesttech.net,' \
+                  'fundslibrary.co.uk,t.co,www.googletagmanager.com,ytimg.com,ajax/menus,lightstreamer,' \
+                  'loginstatus,cms_services.php'
 
 logger = logging.getLogger(__name__)
 

@@ -88,9 +88,11 @@ class HttpRequestEntry:
 
 
 class RequestSessionContext:
+    _default_referer: str
     _entries: List[HttpRequestEntry]
 
-    def __init__(self):
+    def __init__(self, default_referer:str):
+        self._default_referer = default_referer
         self._entries = []
 
     @property
@@ -107,4 +109,4 @@ class RequestSessionContext:
         if last_response_url is not None:
             return UrlHelper.get_referrer(last_response_url)
 
-        return "https://online.hl.co.uk/"
+        return self._default_referer

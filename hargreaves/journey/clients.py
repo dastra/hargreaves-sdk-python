@@ -4,7 +4,6 @@ from typing import List
 
 from hargreaves import orders, deals, authentication, accounts, search
 from hargreaves.accounts import AccountSummary, AccountDetail
-from hargreaves.request_tracker import DEFAULT_EXCLUDE
 from hargreaves.request_tracker.har2md import Har2MdController
 from hargreaves.authentication.clients import LoggedInSession
 from hargreaves.config.models import ApiConfiguration
@@ -109,9 +108,8 @@ class WebSessionManager:
         self._request_session_storage.write(self._web_session.request_session_context, api_config)
 
     def convert_HAR_to_markdown(self):
-        exclude_patterns = DEFAULT_EXCLUDE.split(',')
         input_file = Path(self._request_session_storage.get_location())
         output_folder = Path.joinpath(input_file.parent, input_file.stem)
 
         har2md = Har2MdController()
-        har2md.exec(str(input_file), str(output_folder), exclude_patterns)
+        har2md.exec(str(input_file), str(output_folder), [])
