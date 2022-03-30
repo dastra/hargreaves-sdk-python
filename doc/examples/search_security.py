@@ -2,16 +2,23 @@ import logging
 import traceback
 from pathlib import Path
 
-from hargreaves import journey
-from hargreaves.config import load_api_config
+from requests_tracker import storage
+from requests_tracker.storage import CookiesFileStorage
+
+from hargreaves import config, session, search
 from hargreaves.search import InvestmentTypes
-from hargreaves.utils.logging import LogHelper
+from hargreaves.utils.logs import LogHelper
 
 if __name__ == '__main__':
 
     logger = LogHelper.configure(logging.DEBUG)
 
-    config = load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    # load api config
+    config = config.load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    # create logged-in web session (+ load previous cookies file):
+    session_cache_path = Path(__file__).parent.parent.parent.joinpath('session_cache')
+    cookies_storage = CookiesFileStorage(session_cache_path)
+    web_session = session.create_session(cookies_storage, config)
 
     # UK
     stock_ticker = 'PDG'
@@ -25,12 +32,13 @@ if __name__ == '__main__':
     # stock_ticker = 'FB'
     # investment_types = InvestmentTypes.ALL
 
-    web_session_manager = journey.create_default_session_manager()
     try:
-        web_session_manager.start_session(config)
-        accounts = web_session_manager.get_account_summary()
 
-        search_result = web_session_manager.search_security(stock_ticker, investment_types)
+        search_result = search.investment_search(
+            web_session=web_session,
+            search_string=stock_ticker,
+            investment_types=investment_types)
+
         print(f"Found {len(search_result)} results")
         for search_result in search_result:
             print(search_result)
@@ -38,5 +46,9 @@ if __name__ == '__main__':
     except Exception as ex:
         logger.error(traceback.print_exc())
     finally:
-        web_session_manager.stop_session(config)
-        web_session_manager.convert_HAR_to_markdown()
+        # persist cookies to local file
+        cookies_storage.save(web_session.cookies)
+        # writes to 'session-cache/session-DD-MM-YYYY HH-MM-SS.har' file
+        storage.write_HAR_to_local_file(session_cache_path, web_session.request_session_context)
+        # converts HAR file to markdown file + response files in folder 'session-cache/session-DD-MM-YYYY HH-MM-SS/'
+        storage.convert_HAR_to_markdown(session_cache_path, web_session.request_session_context)

@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 
-from hargreaves.config.models import ApiConfiguration
+from ..config.models import ApiConfiguration
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class ConfigLoader:
     def load_api_config(self, api_secrets_filename=None):
         """
         :param str api_secrets_filename: The full path to the JSON file containing the credentials
-        :return: hargreaves.config.ApiConfiguration: The populated ApiConfiguration
+        :return: .config.ApiConfiguration: The populated ApiConfiguration
         """
         # Get the config keys which contain the mapping between the ApiConfiguration attributes and the variable names
         # in the secrets.json file and environment variables e.g. username is username (secrets.json) and

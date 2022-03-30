@@ -1,9 +1,9 @@
 import logging
 
-from hargreaves.orders.market.clients import MarketOrderClient
-from hargreaves.orders.market.models import MarketOrderPosition, MarketOrder, MarketOrderQuote, MarketOrderConfirmation
-from hargreaves.session.clients import SessionClient
-from hargreaves.request_tracker.session import IWebSession
+from ...orders.market.clients import MarketOrderClient
+from ...orders.market.models import MarketOrderPosition, MarketOrder, MarketOrderQuote, MarketOrderConfirmation
+from ...session.clients import SessionClient
+from requests_tracker.session import IWebSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -39,4 +39,3 @@ def submit_order(web_session: IWebSession, order_quote: MarketOrderQuote) -> Mar
         web_session=web_session,
         order_quote=order_quote
     )
-

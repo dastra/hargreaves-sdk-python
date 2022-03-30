@@ -7,8 +7,8 @@ from hargreaves.orders.pending.models import PendingOrder
 from hargreaves.orders.pending.parsers import parse_pending_orders
 from hargreaves.utils import clock
 from hargreaves.utils.input import InputHelper
-from hargreaves.utils.logging import LogHelper
-from hargreaves.request_tracker.mocks import MockWebSession
+from hargreaves.utils.logs import LogHelper
+from requests_tracker.mocks import MockWebSession
 
 LogHelper.configure_std_out()
 clock.freeze_time()

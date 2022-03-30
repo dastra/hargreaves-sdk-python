@@ -3,8 +3,8 @@ import re
 
 from bs4 import BeautifulSoup
 
-from hargreaves.config.models import ApiConfiguration
-from hargreaves.request_tracker.session import IWebSession
+from ...config.models import ApiConfiguration
+from requests_tracker.session import IWebSession
 
 
 def get_secure_number_request(web_session: IWebSession):

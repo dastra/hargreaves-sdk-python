@@ -2,38 +2,42 @@ import logging
 import traceback
 from pathlib import Path
 
-from hargreaves import journey
-from hargreaves.accounts import AccountType
+from requests_tracker import storage
+from requests_tracker.storage import CookiesFileStorage
 
-from hargreaves.config import load_api_config
-from hargreaves.orders.models import OrderPositionType
+from hargreaves import config, session, account, deals
+from hargreaves.account import AccountType
 from hargreaves.deals.models import DealRequest
-from hargreaves.utils.logging import LogHelper
+from hargreaves.orders.models import OrderPositionType
+from hargreaves.utils.logs import LogHelper
 
 if __name__ == '__main__':
 
     logger = LogHelper.configure(logging.DEBUG)
 
-    config = load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    # load api config
+    config = config.load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    # create logged-in web session (+ load previous cookies file):
+    session_cache_path = Path(__file__).parent.parent.parent.joinpath('session_cache')
+    cookies_storage = CookiesFileStorage(session_cache_path)
+    web_session = session.create_session(cookies_storage, config)
 
     # UK
-    # stock_ticker = 'PDG'
-    # position_type = OrderPositionType.Sell
-    # position_percentage = 100.00
-    # allow_fill_or_kill = True
-
-    # US
-    stock_ticker = 'TUSK'
-    position_type = OrderPositionType.Buy
-    position_percentage = 0.5
+    stock_ticker = 'PDG'
+    position_type = OrderPositionType.Sell
+    position_percentage = 100.00
     allow_fill_or_kill = True
 
-    web_session_manager = journey.create_default_session_manager()
+    # US
+    # stock_ticker = 'TUSK'
+    # position_type = OrderPositionType.Buy
+    # position_percentage = 0.5
+    # allow_fill_or_kill = True
+
     try:
-        web_session_manager.start_session(config)
 
         # get account (and login if required)
-        accounts = web_session_manager.get_account_summary()
+        accounts = account.get_account_summary(web_session=web_session)
 
         # select the SIPP account
         sipp = next((account_summary for account_summary in accounts
@@ -48,12 +52,19 @@ if __name__ == '__main__':
             allow_fill_or_kill=allow_fill_or_kill
         )
 
-        # execute
-        order_confirmation = web_session_manager.execute_deal(deal_request)
+        # execute deal flow
+        order_confirmation = deals.execute_deal(
+            web_session=web_session,
+            deal_request=deal_request
+        )
         print(order_confirmation)
 
     except Exception as ex:
         logger.error(traceback.print_exc())
     finally:
-        web_session_manager.stop_session(config)
-        web_session_manager.convert_HAR_to_markdown()
+        # persist cookies to local file
+        cookies_storage.save(web_session.cookies)
+        # writes to 'session-cache/session-DD-MM-YYYY HH-MM-SS.har' file
+        storage.write_HAR_to_local_file(session_cache_path, web_session.request_session_context)
+        # converts HAR file to markdown file + response files in folder 'session-cache/session-DD-MM-YYYY HH-MM-SS/'
+        storage.convert_HAR_to_markdown(session_cache_path, web_session.request_session_context)

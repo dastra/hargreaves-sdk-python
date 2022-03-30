@@ -2,8 +2,8 @@ import http
 
 from hargreaves.session.clients import SessionClient
 from hargreaves.utils import clock
-from hargreaves.utils.logging import LogHelper
-from hargreaves.request_tracker.mocks import MockWebSession
+from hargreaves.utils.logs import LogHelper
+from requests_tracker.mocks import MockWebSession
 
 LogHelper.configure_std_out()
 clock.freeze_time()

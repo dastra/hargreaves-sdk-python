@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from hargreaves.config.loader import ConfigLoader
-from hargreaves.utils.logging import LogHelper
+from hargreaves.utils.logs import LogHelper
 
 
 LogHelper.configure_std_out()

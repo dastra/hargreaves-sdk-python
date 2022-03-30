@@ -2,7 +2,7 @@ import json
 import logging
 from typing import List
 
-from hargreaves.request_tracker.session import IWebSession, WebRequestType
+from requests_tracker.session import IWebSession, WebRequestType
 from .errors import SearchFilterError
 from .models import InvestmentTypes, SearchResult
 from ..utils import clock

@@ -2,20 +2,26 @@ import logging
 import traceback
 from pathlib import Path
 
-from hargreaves import journey
-from hargreaves.accounts import AccountType
+from requests_tracker import storage
+from requests_tracker.storage import CookiesFileStorage
 
-from hargreaves.config import load_api_config
-from hargreaves.search import InvestmentTypes
+from hargreaves import config, session, account, search, orders
+from hargreaves.account import AccountType
 from hargreaves.orders.manual.models import ManualOrder
 from hargreaves.orders.models import OrderPositionType, OrderAmountType
-from hargreaves.utils.logging import LogHelper
+from hargreaves.search import InvestmentTypes
+from hargreaves.utils.logs import LogHelper
 
 if __name__ == '__main__':
 
     logger = LogHelper.configure(logging.DEBUG)
 
-    config = load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    # load api config
+    config = config.load_api_config(str(Path(__file__).parent) + "/secrets.json")
+    # create logged-in web session (+ load previous cookies file):
+    session_cache_path = Path(__file__).parent.parent.parent.joinpath('session_cache')
+    cookies_storage = CookiesFileStorage(session_cache_path)
+    web_session = session.create_session(cookies_storage, config)
 
     # UK
     # stock_ticker = 'PDG'
@@ -31,19 +37,20 @@ if __name__ == '__main__':
     stock_quantity = 50  # +/- £86.19 @ 2.09 USD
     investment_types = [InvestmentTypes.OVERSEAS]
 
-    web_session_manager = journey.create_default_session_manager()
     try:
-        web_session_manager.start_session(config)
-
         # get account (and login if required)
-        accounts = web_session_manager.get_account_summary()
+        accounts = account.get_account_summary(web_session=web_session)
 
         # select the SIPP account
         sipp = next((account_summary for account_summary in accounts
                      if account_summary.account_type == AccountType.SIPP), None)
 
         # search security
-        search_result = web_session_manager.search_security(stock_ticker, investment_types)
+        search_result = search.investment_search(
+            web_session=web_session,
+            search_string=stock_ticker,
+            investment_types=investment_types)
+
         print(f"Found {len(search_result)} results")
         if len(search_result) != 1:
             raise Exception(f"Unexpected number {(len(search_result))} of securities found!")
@@ -55,9 +62,12 @@ if __name__ == '__main__':
         category_code = search_result[0].category
 
         # get current position
-        current_position = web_session_manager.get_manual_order_position(account_id=account_id,
-                                                                         sedol_code=sedol_code,
-                                                                         category_code=category_code)
+        current_position = orders.manual.get_current_position(
+            web_session=web_session,
+            account_id=account_id,
+            sedol_code=sedol_code,
+            category_code=category_code)
+
         print(current_position.as_form_fields())
 
         order = ManualOrder(
@@ -68,11 +78,18 @@ if __name__ == '__main__':
             limit=None)
 
         # submit order
-        order_confirmation = web_session_manager.submit_manual_order(order)
+        order_confirmation = orders.manual.submit_order(
+            web_session=web_session,
+            order=order)
+
         print(order_confirmation)
 
     except Exception as ex:
         logger.error(traceback.print_exc())
     finally:
-        web_session_manager.stop_session(config)
-        web_session_manager.convert_HAR_to_markdown()
+        # persist cookies to local file
+        cookies_storage.save(web_session.cookies)
+        # writes to 'session-cache/session-DD-MM-YYYY HH-MM-SS.har' file
+        storage.write_HAR_to_local_file(session_cache_path, web_session.request_session_context)
+        # converts HAR file to markdown file + response files in folder 'session-cache/session-DD-MM-YYYY HH-MM-SS/'
+        storage.convert_HAR_to_markdown(session_cache_path, web_session.request_session_context)

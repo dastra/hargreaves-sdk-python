@@ -1,9 +1,9 @@
 import logging
 from typing import List
 
-from hargreaves.orders.pending.clients import PendingOrdersClient
-from hargreaves.orders.pending.models import PendingOrder
-from hargreaves.request_tracker.session import IWebSession
+from ...orders.pending.clients import PendingOrdersClient
+from ...orders.pending.models import PendingOrder
+from requests_tracker.session import IWebSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

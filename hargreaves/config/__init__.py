@@ -1,6 +1,6 @@
 import logging
 
-from hargreaves.config.loader import ConfigLoader
+from ..config.loader import ConfigLoader
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

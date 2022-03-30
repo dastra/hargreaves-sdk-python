@@ -3,8 +3,8 @@ from typing import List
 
 from bs4 import BeautifulSoup
 
-from hargreaves.orders.pending.models import PendingOrder
-from hargreaves.utils.input import InputHelper
+from ...orders.pending.models import PendingOrder
+from ...utils.input import InputHelper
 
 
 def parse_pending_orders(account_id: int, pending_orders_html: str) -> List[PendingOrder]:
@@ -16,7 +16,7 @@ def parse_pending_orders(account_id: int, pending_orders_html: str) -> List[Pend
     if pending_orders_table is None:
         return pending_orders
 
-    #  Order date	Code	Quantity	Stock	Order type	Limit price	Status	Cance
+    #  Order date	Code	Quantity	Stock	Order type	Limit price	Status	Cancel
     header_rows = pending_orders_table.select("thead > tr > th")
     if len(header_rows) != 8:
         raise Exception(

@@ -6,7 +6,7 @@ from requests import Response
 
 from hargreaves.authentication.login.step_two import *
 from hargreaves.config.models import ApiConfiguration
-from hargreaves.request_tracker.mocks import MockWebSession
+from requests_tracker.mocks import MockWebSession
 
 HL_VT = '1670432745'
 

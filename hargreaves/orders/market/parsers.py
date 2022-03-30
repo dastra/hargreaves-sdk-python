@@ -3,10 +3,10 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from hargreaves.orders.market.errors import MarketClosedError, MarketOrderFailedError, MarketOrderLiveQuoteError, \
+from ...orders.market.errors import MarketClosedError, MarketOrderFailedError, MarketOrderLiveQuoteError, \
     MarketOrderQuoteError
-from hargreaves.orders.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrderConfirmation
-from hargreaves.utils.input import InputHelper
+from ...orders.market.models import MarketOrderPosition, MarketOrderQuote, MarketOrderConfirmation
+from ...utils.input import InputHelper
 
 
 def parse_market_order_entry_page(order_html: str, category_code: str) -> MarketOrderPosition:

@@ -6,3 +6,4 @@ beautifulsoup4>=4.10.0
 argparse~=1.4.0
 urllib3~=1.26.8
 Jinja2~=2.11.3
+git+https://github.com/eladeon/requests-tracker-python@v1.0.0#egg=requests-tracker

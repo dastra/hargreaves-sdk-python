@@ -3,8 +3,8 @@ import http
 from bs4 import BeautifulSoup
 from requests import Response
 
-from hargreaves.config.models import ApiConfiguration
-from hargreaves.request_tracker.session import IWebSession
+from ...config.models import ApiConfiguration
+from requests_tracker.session import IWebSession
 
 
 def get_security_token(web_session: IWebSession):

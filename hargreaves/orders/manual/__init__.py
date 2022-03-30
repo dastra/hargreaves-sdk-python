@@ -1,9 +1,9 @@
 import logging
 
-from hargreaves.orders.manual.clients import ManualOrderClient
-from hargreaves.orders.manual.models import ManualOrderPosition, ManualOrder
-from hargreaves.session.clients import SessionClient
-from hargreaves.request_tracker.session import IWebSession
+from ...orders.manual.clients import ManualOrderClient
+from ...orders.manual.models import ManualOrderPosition, ManualOrder
+from ...session.clients import SessionClient
+from requests_tracker.session import IWebSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

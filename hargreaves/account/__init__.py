@@ -3,7 +3,7 @@ from typing import List
 
 from .clients import AccountClient
 from .models import AccountType, AccountSummary, AccountDetail
-from hargreaves.request_tracker.session import IWebSession
+from requests_tracker.session import IWebSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

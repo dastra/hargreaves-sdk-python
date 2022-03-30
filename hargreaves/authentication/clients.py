@@ -1,16 +1,16 @@
 import logging
 
-from hargreaves.authentication.login.step_one import *
-from hargreaves.authentication.login.step_two import *
-from hargreaves.config.models import ApiConfiguration
-from hargreaves.utils import clock
-from hargreaves.session.cookies import HLCookieHelper
-from hargreaves.request_tracker.session import IWebSession, WebRequestType
+from ..authentication.login.step_one import *
+from ..authentication.login.step_two import *
+from ..config.models import ApiConfiguration
+from ..utils.cookies import HLCookieHelper
+from ..utils import clock
 
 logger = logging.getLogger(__name__)
 
 
 class AuthenticationClient:
+    LOGIN_URL = 'https://online.hl.co.uk/my-accounts/login-step-one'
 
     def __init__(self):
         pass
@@ -49,41 +49,3 @@ class AuthenticationClient:
         if response.status_code != http.HTTPStatus.OK:
             raise ConnectionError(f"Unexpected logout response code ('{response.status_code}')")
         web_session.cookies.clear()
-
-
-class LoggedInSession(IWebSession):
-    LOGIN_URL = 'https://online.hl.co.uk/my-accounts/login-step-one'
-    _web_session: IWebSession
-    _config: ApiConfiguration
-
-    def __init__(self, web_session: IWebSession, config: ApiConfiguration):
-        self._web_session = web_session
-        self._config = config
-
-    def get(self, url: str, request_type: WebRequestType = WebRequestType.Document,
-            params=None, headers=None) -> Response:
-        response = self._web_session.get(url=url, request_type=request_type, params=params, headers=headers)
-        if response.url != self.LOGIN_URL:
-            return response
-        logger.debug("Redirected to login page, let's login ...")
-        logged_in_response = AuthenticationClient().login(self._web_session, self._config, response)
-        if logged_in_response.url == url:
-            return logged_in_response
-        else:
-            logger.debug(f"Unexpected post-login-redirect URL ({logged_in_response.url}), "
-                         f"let's GET original URL '{url}'")
-            return self._web_session.get(url=url, request_type=request_type, params=params, headers=headers)
-
-    def post(self, url: str, request_type: WebRequestType = WebRequestType.Document,
-             data=None, headers=None) -> Response:
-        response = self._web_session.post(url=url, request_type=request_type, data=data, headers=headers)
-        if response.url != self.LOGIN_URL:
-            return response
-        logger.debug("Redirected to login page, let's login ...")
-        logged_in_response = AuthenticationClient().login(self._web_session, self._config, response)
-        if logged_in_response.url == url:
-            return logged_in_response
-        else:
-            logger.debug(f"Unexpected post-login-redirect URL ({logged_in_response.url}), "
-                         f"let's POST original URL '{url}'")
-            return self._web_session.post(url=url, request_type=request_type, data=data, headers=headers)

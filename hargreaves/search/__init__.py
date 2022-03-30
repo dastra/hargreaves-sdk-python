@@ -2,7 +2,7 @@ from .clients import SecuritySearchClient
 from .models import InvestmentTypes, SearchResult
 import logging
 
-from hargreaves.request_tracker.session import IWebSession
+from requests_tracker.session import IWebSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

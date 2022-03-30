@@ -1,13 +1,13 @@
 import logging
 
-from hargreaves.accounts.clients import AccountClient
-from hargreaves.deals.clients import DealClient
-from hargreaves.deals.models import DealRequest, DealResult
-from hargreaves.orders.manual.clients import ManualOrderClient
-from hargreaves.orders.market.clients import MarketOrderClient
-from hargreaves.search.clients import SecuritySearchClient
-from hargreaves.session.clients import SessionClient
-from hargreaves.request_tracker.session import IWebSession
+from ..account.clients import AccountClient
+from ..deals.clients import DealClient
+from ..deals.models import DealRequest, DealResult
+from ..orders.manual.clients import ManualOrderClient
+from ..orders.market.clients import MarketOrderClient
+from ..search.clients import SecuritySearchClient
+from ..session.clients import SessionClient
+from requests_tracker.session import IWebSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

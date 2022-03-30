@@ -1,6 +1,6 @@
 from typing import Optional
 
-from hargreaves.orders.models import OrderPositionType, IOrderConfirmation, OrderRequest
+from ..orders.models import OrderPositionType, IOrderConfirmation, OrderRequest
 
 
 class DealRequest():

@@ -1,8 +1,8 @@
 import logging
 
-from hargreaves.session.errors import SessionError
-from hargreaves.utils import clock
-from hargreaves.request_tracker.session import IWebSession, WebRequestType
+from ..session.errors import SessionError
+from ..utils import clock
+from requests_tracker.session import IWebSession, WebRequestType
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup
 
-from hargreaves.orders.manual.errors import ManualOrderFailedError
-from hargreaves.orders.manual.models import ManualOrderConfirmation, ManualOrderPosition
-from hargreaves.orders.models import OrderAmountType
-from hargreaves.utils.input import InputHelper
+from ...orders.manual.errors import ManualOrderFailedError
+from ...orders.manual.models import ManualOrderConfirmation, ManualOrderPosition
+from ...orders.models import OrderAmountType
+from ...utils.input import InputHelper
 
 
 def parse_manual_order_entry_page(order_html: str, category_code: str) -> ManualOrderPosition:

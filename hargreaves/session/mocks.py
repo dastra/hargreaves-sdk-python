@@ -1,5 +1,5 @@
-from hargreaves.session.clients import ISessionClient
-from hargreaves.request_tracker.session import IWebSession
+from ..session.clients import ISessionClient
+from requests_tracker.session import IWebSession
 
 
 class MockSessionClient(ISessionClient):

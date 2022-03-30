@@ -1,18 +1,12 @@
 import logging
 
 from requests import Response
+from requests_tracker.session import IWebSession
 
-from hargreaves.authentication.clients import LoggedInSession, AuthenticationClient
-from hargreaves.config.models import ApiConfiguration
-from hargreaves.request_tracker.session import IWebSession
+from ..authentication.clients import AuthenticationClient
+from ..config.models import ApiConfiguration
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-
-
-def create_logged_in_session(web_session: IWebSession, config: ApiConfiguration):
-    return LoggedInSession(
-        web_session=web_session,
-        config=config)
 
 
 def login(web_session: IWebSession,

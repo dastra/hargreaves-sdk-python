@@ -1,9 +1,9 @@
 import logging
 from typing import List
 
-from hargreaves.accounts.models import AccountSummary, AccountDetail
-from hargreaves.accounts.parsers.parsers import parse_account_list, parse_account_detail
-from hargreaves.request_tracker.session import IWebSession
+from ..account.models import AccountSummary, AccountDetail
+from ..account.parsers.parsers import parse_account_list, parse_account_detail
+from requests_tracker.session import IWebSession
 
 logger = logging.getLogger(__name__)
 

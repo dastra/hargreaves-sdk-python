@@ -1,14 +1,14 @@
 import http
 import logging
 
-from hargreaves.orders.manual.errors import ManualOrderFailedError
-from hargreaves.orders.manual.models import ManualOrder, ManualOrderPosition
-from hargreaves.orders.manual.parsers import parse_manual_order_confirmation_page, parse_manual_order_entry_page
-from hargreaves.orders.models import OrderRequest, IOrderConfirmation, PositionCalculator
-from hargreaves.search.models import InvestmentCategoryTypes
-from hargreaves.session.clients import ISessionClient
-from hargreaves.utils import clock
-from hargreaves.request_tracker.session import IWebSession, WebRequestType
+from ...orders.manual.errors import ManualOrderFailedError
+from ...orders.manual.models import ManualOrder, ManualOrderPosition
+from ...orders.manual.parsers import parse_manual_order_confirmation_page, parse_manual_order_entry_page
+from ...orders.models import OrderRequest, IOrderConfirmation, PositionCalculator
+from ...search.models import InvestmentCategoryTypes
+from ...session.clients import ISessionClient
+from ...utils import clock
+from requests_tracker.session import IWebSession, WebRequestType
 
 logger = logging.getLogger(__name__)
 

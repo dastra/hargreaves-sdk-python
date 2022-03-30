@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from hargreaves.orders.models import OrderPositionType, OrderAmountType, IOrderConfirmation
+from ...orders.models import OrderPositionType, OrderAmountType, IOrderConfirmation
 
 
 class ManualOrderPosition:

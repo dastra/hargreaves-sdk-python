@@ -84,6 +84,20 @@ if __name__ == '__main__':
     logout(session)
 ```
 
+## Analysing bugs
+
+Assuming you have pre-recorded a use-case in a Firefox browser and saved the HAR file
+locally to the "./session_cache/my-recording.har" file you can run the following command
+to filter out the Hargreaves Lansdown request "noise" and convert it to a set of Markdown files
+
+```
+PYTHONPATH=. python3 hargreaves/utils/har2md.py ./session_cache/my-recording.har
+```
+
+You can then compare the markdown files to scraper sessions (HAR files converted to markdown).
+For more information read https://github.com/eladeon/requests-tracker-python/blob/main/README.md
+
+
 ## Contributing
 
 You are welcome to suggest a new feature by raising an issue, or indeed to contribute

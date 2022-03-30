@@ -2,7 +2,7 @@ import json
 from http.cookiejar import CookieJar
 from random import randint
 from requests import cookies
-from hargreaves.utils import clock
+from ..utils import clock
 
 
 class HLCookieHelper:

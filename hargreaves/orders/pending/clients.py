@@ -4,12 +4,12 @@ from typing import List
 
 from bs4 import BeautifulSoup
 
-from hargreaves.orders.pending.errors import CancelPendingOrderError
-from hargreaves.orders.pending.models import PendingOrder
-from hargreaves.orders.pending.parsers import parse_pending_orders
-from hargreaves.utils import clock
-from hargreaves.request_tracker.requests import WebRequestType
-from hargreaves.request_tracker.session import IWebSession
+from ...orders.pending.errors import CancelPendingOrderError
+from ...orders.pending.models import PendingOrder
+from ...orders.pending.parsers import parse_pending_orders
+from ...utils import clock
+from requests_tracker.request import WebRequestType
+from requests_tracker.session import IWebSession
 
 logger = logging.getLogger(__name__)
 
