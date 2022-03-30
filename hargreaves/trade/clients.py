@@ -142,8 +142,9 @@ def execute_deal(session: requests.Session, price_quote: PriceQuote) -> [request
 
     form = {
         'hl_vt': price_quote.hl_vt,
-        'sedol_code': price_quote.sedol_code
+        'sedol': price_quote.sedol_code
     }
+
     headers = {
         'X-Requested-With': 'XMLHttpRequest',
         'Referer': f'https://online.hl.co.uk/my-accounts/security_deal/sedol/{price_quote.sedol_code}'
