@@ -10,7 +10,7 @@ from pathlib import Path
 from hargreaves.trade.errors import MarketClosedError, DealFailedError
 from hargreaves.trade.clients import parse_deal_page, parse_buy_quote_page, parse_confirm_equity_deal_page, \
     session_keepalive
-from trade.models import PriceQuote
+from hargreaves.trade.models import PriceQuote
 
 
 def test_parse_deal_page_market_closed():
