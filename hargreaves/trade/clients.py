@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 from hargreaves.trade.errors import MarketClosedError, DealFailedError
 from hargreaves.trade.models import Deal, Buy, PriceQuote, DealConfirmation
-from utils.cookie_manager import set_cookies
+from hargreaves.utils.cookie_manager import set_cookies
 
 
 def get_current_price(session: requests.Session, account_id: int, sedol_code: str) -> [requests.Session, Deal]:
