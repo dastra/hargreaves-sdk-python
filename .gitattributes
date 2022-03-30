@@ -1,0 +1,5 @@
+# Excluding test files
+*.html linguist-detectable=false
+*.csv linguist-detectable=false
+*.json linguist-detectable=false
+*.jsonp linguist-detectable=false
