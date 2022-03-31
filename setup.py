@@ -37,6 +37,7 @@ setup(
     install_requires=[
         "requests",
         "setuptools",
-        "beautifulsoup4"
+        "beautifulsoup4",
+        "requests-tracker"
     ],
 )
