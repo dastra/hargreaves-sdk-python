@@ -59,38 +59,17 @@ export HL_DATE_OF_BIRTH = "011285" # Format DDMMYY
 export HL_SECURE_NUMBER = "654321"
 ```
 
-### Usage Example - listing holdings
+### Usage Example
 
-You can find the script below in doc/examples/list_account_holdings.py
+Please see the various script examples:
 
-```python
-from hargreaves.authentication import *
-from hargreaves.account import *
-from hargreaves.config import *
+* [doc/examples/account_holdings_list.py](doc/examples/account_holdings_list.py)
+* [doc/examples/deals_execute.py](doc/examples/deals_execute.py)
+* [doc/examples/pending_orders_list.py](doc/examples/pending_orders_list.py)
+* [doc/examples/pending_orders_cancel.py](doc/examples/pending_orders_cancel.py)
+* [doc/examples/search_security.py](doc/examples/search_security.py)
 
-if __name__ == '__main__':
-    # Load your secrets
-    config = load_api_config("./secrets.json")
-
-    # Log in
-    session = login(config)
-
-    # Lists all of your accounts - i.e. SIPP, ISA.
-    session, accounts = list_accounts(session)
-
-    for account_summary in accounts:
-        # Fetches information in my-accounts page
-        account_detail = get_account_detail(session, account_summary)
-        print(f'Your {account_detail.account_type} is worth {account_detail.total_value} with the following holdings:')
-        for investment in account_detail.investments:
-            print(f'\tYou hold {investment.units_held} units of {investment.security_name} worth {investment.value_gbp}')
-
-    # If you're running this in a long running server environment,
-    # make sure to log out to avoid session expiration errors
-    logout(session)
-```
-
-## Analysing bugs
+## Analysing Issues
 
 Assuming you have pre-recorded a use-case in a Firefox browser and saved the HAR file
 locally to the "./session_cache/my-recording.har" file you can run the following command

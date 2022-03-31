@@ -7,10 +7,18 @@ from requests_tracker.storage import CookiesFileStorage
 
 from hargreaves import config, session, account, search, orders
 from hargreaves.account import AccountType
-from hargreaves.orders.market.models import MarketOrder
+from hargreaves.orders.manual.models import ManualOrder
 from hargreaves.orders.models import OrderPositionType, OrderAmountType
 from hargreaves.search import InvestmentTypes
 from hargreaves.utils.logs import LogHelper
+
+"""
+WARNING: This is a test script for manual (fill-or-kill) orders OUT-OF-HOURS - running this inside trading hours
+may cause issues. 
+
+It is recommended to use the "deal_execute.py" script for ad-hoc buy/sell transactions as it executes orders similar
+to the website (first attempts market orders and then fails over to manual (fill-or-kill) orders if applicable).
+"""
 
 if __name__ == '__main__':
 
@@ -23,19 +31,33 @@ if __name__ == '__main__':
     cookies_storage = CookiesFileStorage(session_cache_path)
     web_session = session.create_session(cookies_storage, config)
 
-    # UK
+    # UK - BUY
     # stock_ticker = 'PDG'
     # position_type = OrderPositionType.Buy
     # amount_type = OrderAmountType.Quantity
     # stock_quantity = 200  # +/- £49.87 @ 21.852p
     # investment_types = [InvestmentTypes.SHARES]
 
-    # US
+    # UK - SELL
+    # stock_ticker = 'PDG'
+    # position_type = OrderPositionType.Sell
+    # amount_type = OrderAmountType.Quantity
+    # stock_quantity = 200  # +/- £49.87 @ 21.852p
+    # investment_types = [InvestmentTypes.SHARES]
+
+    # US - BUY
     stock_ticker = 'TUSK'
     position_type = OrderPositionType.Buy
     amount_type = OrderAmountType.Quantity
     stock_quantity = 50  # +/- £86.19 @ 2.09 USD
     investment_types = [InvestmentTypes.OVERSEAS]
+
+    # US - SELL
+    # stock_ticker = 'TUSK'
+    # position_type = OrderPositionType.Sell
+    # amount_type = OrderAmountType.Quantity
+    # stock_quantity = 50  # +/- £86.19 @ 2.09 USD
+    # investment_types = [InvestmentTypes.OVERSEAS]
 
     try:
         # get account (and login if required)
@@ -51,6 +73,10 @@ if __name__ == '__main__':
             search_string=stock_ticker,
             investment_types=investment_types)
 
+        print(f"Found {len(search_result)} results")
+        if len(search_result) != 1:
+            raise Exception(f"Unexpected number {(len(search_result))} of securities found!")
+
         print(search_result[0])
 
         account_id = sipp.account_id
@@ -58,7 +84,7 @@ if __name__ == '__main__':
         category_code = search_result[0].category
 
         # get current position
-        current_position = orders.market.get_current_position(
+        current_position = orders.manual.get_current_position(
             web_session=web_session,
             account_id=account_id,
             sedol_code=sedol_code,
@@ -66,23 +92,17 @@ if __name__ == '__main__':
 
         print(current_position.as_form_fields())
 
-        # get a quote
-        order = MarketOrder(
+        order = ManualOrder(
             position=current_position,
             position_type=position_type,
             amount_type=amount_type,
-            quantity=stock_quantity)
+            quantity=stock_quantity,
+            limit=None)
 
-        order_quote = orders.market.get_order_quote(
+        # submit order
+        order_confirmation = orders.manual.submit_order(
             web_session=web_session,
             order=order)
-
-        print(order_quote)
-
-        # confirm quote
-        order_confirmation = orders.market.submit_order(
-            web_session=web_session,
-            order_quote=order_quote)
 
         print(order_confirmation)
 

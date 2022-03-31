@@ -9,6 +9,11 @@ from hargreaves import config, session, account, orders
 from hargreaves.account import AccountType
 from hargreaves.utils.logs import LogHelper
 
+"""
+WARNING: This will cancel ALL pending orders (fill-or-kill / limit / stop-loss) on your account WITHOUT asking for
+confirmation
+"""
+
 if __name__ == '__main__':
 
     logger = LogHelper.configure(logging.DEBUG)

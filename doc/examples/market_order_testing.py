@@ -12,6 +12,15 @@ from hargreaves.orders.models import OrderPositionType, OrderAmountType
 from hargreaves.search import InvestmentTypes
 from hargreaves.utils.logs import LogHelper
 
+"""
+PLEASE NOTE: This is a test script for market (realtime) orders INSIDE-TRADING-HOURS - running this outside of normal
+trading hours will not be an issue and similar to the website it will just stop with an "market is closed" error
+message.
+
+It is recommended to use the "deal_execute.py" script for ad-hoc buy/sell transactions as it executes orders similar
+to the website (first attempts market orders and then fails over to manual (fill-or-kill) orders if applicable).
+"""
+
 if __name__ == '__main__':
 
     logger = LogHelper.configure(logging.DEBUG)
@@ -23,14 +32,28 @@ if __name__ == '__main__':
     cookies_storage = CookiesFileStorage(session_cache_path)
     web_session = session.create_session(cookies_storage, config)
 
-    # UK
+    # UK - BUY
     stock_ticker = 'PDG'
-    position_type = OrderPositionType.Sell
+    position_type = OrderPositionType.Buy
     amount_type = OrderAmountType.Quantity
     stock_quantity = 200  # +/- £49.87 @ 21.852p
     investment_types = [InvestmentTypes.SHARES]
 
-    # US
+    # UK - SELL
+    # stock_ticker = 'PDG'
+    # position_type = OrderPositionType.Sell
+    # amount_type = OrderAmountType.Quantity
+    # stock_quantity = 200  # +/- £49.87 @ 21.852p
+    # investment_types = [InvestmentTypes.SHARES]
+
+    # US - BUY
+    # stock_ticker = 'TUSK'
+    # position_type = OrderPositionType.Buy
+    # amount_type = OrderAmountType.Quantity
+    # stock_quantity = 50  # +/- £86.19 @ 2.09 USD
+    # investment_types = [InvestmentTypes.OVERSEAS]
+
+    # US - SELL
     # stock_ticker = 'TUSK'
     # position_type = OrderPositionType.Sell
     # amount_type = OrderAmountType.Quantity
@@ -38,7 +61,6 @@ if __name__ == '__main__':
     # investment_types = [InvestmentTypes.OVERSEAS]
 
     try:
-
         # get account (and login if required)
         accounts = account.get_account_summary(web_session=web_session)
 

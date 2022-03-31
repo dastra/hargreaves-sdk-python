@@ -11,6 +11,13 @@ from hargreaves.deals.models import DealRequest
 from hargreaves.orders.models import OrderPositionType
 from hargreaves.utils.logs import LogHelper
 
+"""
+This is the main example for executing buy/sell transactions - instead of specific amounts it will calculate the 
+order amount based on the relative percentage:
+1) For buy orders this is the % relative to your total account amount (shares + cash)
+2) For sell orders this is the % relative to the stock position,
+"""
+
 if __name__ == '__main__':
 
     logger = LogHelper.configure(logging.DEBUG)
