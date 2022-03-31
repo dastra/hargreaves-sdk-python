@@ -4,14 +4,20 @@
 
 ## Motivation
 
-I wanted to programatically access my Hargreaves Lansdowne accounts, but they do not currently offer an API.
+I wanted to programatically access my Hargreaves Lansdown accounts, but they do not currently offer an API.
 This SDK accesses your accounts via their website, and allows you to list your holdings.  
 This codebase started life as a port to Python of [Jamie Haywood's Javascript package](https://github.com/jamiehaywood/hargreaves).
 
 ## Installation
 
-```shell
-pip3 install hargreaves
+Install via pip
+```
+pip3 install git+https://github.com/dastra/hargreaves-sdk-python@v1.0.0#egg=requests-tracker
+```
+
+Or add the following line to your requirements.txt file:
+```
+git+https://github.com/dastra/hargreaves-sdk-python@v1.0.0#egg=requests-tracker
 ```
 
 ## Usage 
