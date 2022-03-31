@@ -22,6 +22,7 @@ setup(
     long_description="Unofficial Python-Client which uses the Hargreaves Lansdown website as though it were an API.",
     test_suite="tests",
     packages=find_packages(exclude=("tests",)),
+    include_package_data=True,
     python_requires=">=3.7",
     classifiers=[
         "Development Status :: 3 - Alpha",
