@@ -12,12 +12,12 @@ This codebase started life as a port to Python of [Jamie Haywood's Javascript pa
 
 Install via pip
 ```
-pip3 install git+https://github.com/dastra/hargreaves-sdk-python@v1.0.0#egg=requests-tracker
+pip3 install git+https://github.com/dastra/hargreaves-sdk-python@v1.0.0#egg=hargreaves
 ```
 
 Or add the following line to your requirements.txt file:
 ```
-git+https://github.com/dastra/hargreaves-sdk-python@v1.0.0#egg=requests-tracker
+git+https://github.com/dastra/hargreaves-sdk-python@v1.0.0#egg=hargreaves
 ```
 
 ## Usage 
