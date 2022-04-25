@@ -30,8 +30,9 @@ def parse_market_order_entry_page(order_html: str, category_code: str) -> Market
                                sedol_code=tags['sedol'], isin_code=tags['isin'], epic_code=tags['epic'],
                                currency_code=tags['currency_code'], exchange=tags['exchange'],
                                fixed_interest=bool(tags['fixed_interest'] == '1'), account_id=int(tags['product_no']),
-                               total_cash_available=float(tags['available']), bid_price=tags['bid'],
-                               units_held=float(tags['holding']), value_gbp=float(tags['holding_value']),
+                               total_cash_available=InputHelper.parse_float(tags['available']), bid_price=tags['bid'],
+                               units_held=InputHelper.parse_float(tags['holding']),
+                               value_gbp=InputHelper.parse_float(tags['holding_value']),
                                category_code=category_code
                                )
 
@@ -87,11 +88,11 @@ def parse_market_order_quote_page(quote_html: str, category_code: str) -> Market
 
     # Buy 527
     deal_type = quote_quantity.find_all("span", {"class": "deal_text_lg"})[0].text
-    vals['number_of_shares'] = float(re.findall(".*?([\\d.]+)$", deal_type)[0])
+    vals['number_of_shares'] = InputHelper.parse_float(re.findall(".*?([\\d.,]+)$", deal_type)[0])
 
     # 18.945p
     buy_price_span = quote_quantity.select('span')[2].get_text(strip=True)
-    buy_price_matches = re.findall("([\\d.]+)", buy_price_span)
+    buy_price_matches = re.findall("([\\d.,]+)", buy_price_span)
     if len(buy_price_matches) == 0:
         raise ValueError(f"Invalid format for buy price: {buy_price_span}")
     # vals['price'] = float(buy_price_matches[0])
@@ -104,11 +105,11 @@ def parse_market_order_quote_page(quote_html: str, category_code: str) -> Market
         # print(f"{name} = {cols[1].text}")
         if name in ['PTM levy:', 'Commission:', 'Commission', 'Stamp duty:', 'Exchange rate', 'Price', 'Sub total',
                     'FX charge']:
-            vals[QUOTE_MAP[name]] = float(re.findall("([\\d.]+)$", cols[1].text)[0])
+            vals[QUOTE_MAP[name]] = InputHelper.parse_float(re.findall("([\\d.,]+)$", cols[1].text)[0])
         elif name in ['Settlement date:', 'Settlement date']:
             vals[QUOTE_MAP[name]] = datetime.strptime(cols[1].get_text(strip=True), '%d/%m/%Y')
         elif name in ['Value:', 'Total value of trade:']:
-            vals[QUOTE_MAP[name]] = float(re.findall("([\\d.]+)", cols[1].find("span").text)[0])
+            vals[QUOTE_MAP[name]] = InputHelper.parse_float(re.findall("([\\d.,]+)", cols[1].find("span").text)[0])
 
     return MarketOrderQuote(**vals)
 
@@ -161,10 +162,10 @@ def parse_market_order_confirmation_page(confirm_html: str, category_code: str) 
 
         if name in ['PTM levy:', 'Commission:', 'Commission', 'Stamp duty:', 'Exchange rate', 'Price', 'Sub total',
                     'FX charge']:
-            vals[QUOTE_MAP[name]] = float(re.findall("([\\d.]+)$", cols[1].text)[0])
+            vals[QUOTE_MAP[name]] = InputHelper.parse_float(re.findall("([\\d.,]+)$", cols[1].text)[0])
         elif name in ['Settlement date:', 'Settlement date']:
             vals[QUOTE_MAP[name]] = datetime.strptime(cols[1].get_text(strip=True), '%d/%m/%Y')
         elif name in ['Value:', 'Total value of trade:']:
-            vals[QUOTE_MAP[name]] = float(re.findall("([\\d.]+)", cols[1].find("span").text)[0])
+            vals[QUOTE_MAP[name]] = InputHelper.parse_float(re.findall("([\\d.,]+)", cols[1].find("span").text)[0])
 
     return MarketOrderConfirmation(**vals)

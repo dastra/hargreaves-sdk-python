@@ -100,10 +100,10 @@ def test_parse_market_buy_order_confirmation_us_equity():
     assert order_confirmation.commission == 5.95
     assert order_confirmation.stamp_duty is None
     assert order_confirmation.settlement_date is None
-    assert order_confirmation.total_trade_value == 2.0
+    assert order_confirmation.total_trade_value == 2167.84
     assert order_confirmation.exchange_rate == 0.757
     assert order_confirmation.conversion_price == 1.4762
-    assert order_confirmation.conversion_sub_total == 140.49
+    assert order_confirmation.conversion_sub_total == 2140.49
     assert order_confirmation.fx_charge == 21.4
 
 

@@ -207,3 +207,27 @@ def test_execute_market_sell_order_confirmation_us_equity():
         assert urlencode(expected_params) == actual_param
         assert type(order_confirmation) == MarketOrderConfirmation
         assert session_client.was_called is True
+
+
+def test_parse_market_sell_order_quote_uk_equity_bug():
+    quote_html = Path(Path(__file__).parent / 'files/sell/market-sell-order-quote-uk-equity-larger-amount.html')\
+        .read_text()
+
+    price_quote = parse_market_order_quote_page(quote_html=quote_html, category_code=InvestmentCategoryTypes.EQUITIES)
+
+    assert price_quote.session_hl_vt == '3995372114'
+    assert price_quote.hl_vt == '152986666'
+    assert price_quote.sedol_code == 'BYX9528'
+    assert price_quote.number_of_shares == 96.0
+    assert price_quote.price == '2,089.4p'
+    assert price_quote.share_value == 2005.82
+    assert price_quote.ptm_levy == 0.0
+    assert price_quote.commission == 5.95
+    assert price_quote.stamp_duty == 0.0
+    assert price_quote.settlement_date.strftime('%d/%m/%Y') == '27/04/2022'
+    assert price_quote.total_trade_value == 1999.87
+    assert price_quote.exchange_rate is None
+    assert price_quote.conversion_price is None
+    assert price_quote.conversion_sub_total is None
+    assert price_quote.fx_charge is None
+    assert price_quote.category_code == InvestmentCategoryTypes.EQUITIES
