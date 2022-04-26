@@ -40,6 +40,6 @@ setup(
         "setuptools",
         "beautifulsoup4",
         "argparse",
-        "requests-tracker @ git+https://github.com/eladeon/requests-tracker-python@v1.0.1#egg=requests-tracker",
+        "requests-tracker @ git+https://github.com/eladeon/requests-tracker-python@v1.0.3#egg=requests-tracker",
     ]
 )
